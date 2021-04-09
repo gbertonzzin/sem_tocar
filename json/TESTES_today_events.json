@@ -1,0 +1,66 @@
+{
+    "0": {
+        "attendees": [
+            {
+                "email": "gbertonzzin@gmail.com",
+                "responseStatus": "needsAction"
+            }
+        ],
+        "conferenceData": {
+            "conferenceId": "rtn-qpuh-mrf",
+            "conferenceSolution": {
+                "iconUri": "https://fonts.gstatic.com/s/i/productlogos/meet_2020q4/v6/web-512dp/logo_meet_2020q4_color_2x_web_512dp.png",
+                "key": {
+                    "type": "hangoutsMeet"
+                },
+                "name": "Google Meet"
+            },
+            "createRequest": {
+                "conferenceSolutionKey": {
+                    "type": "hangoutsMeet"
+                },
+                "requestId": "1e9fa27ioa4gbb6tmk2lubfsll",
+                "status": {
+                    "statusCode": "success"
+                }
+            },
+            "entryPoints": [
+                {
+                    "entryPointType": "video",
+                    "label": "meet.google.com/rtn-qpuh-mrf",
+                    "uri": "https://meet.google.com/rtn-qpuh-mrf"
+                }
+            ],
+            "signature": "AL9oL6VehMvE1gFqYoKMKGVgOCCX"
+        },
+        "created": "2021-03-30T01:25:04.000Z",
+        "creator": {
+            "email": "gbertonzzin@gmail.com"
+        },
+        "end": {
+            "dateTime": "2021-03-29T23:00:00-03:00"
+        },
+        "etag": "\"3234135009964000\"",
+        "eventType": "default",
+        "hangoutLink": "https://meet.google.com/rtn-qpuh-mrf",
+        "htmlLink": "https://www.google.com/calendar/event?eid=M29uN2U1amppYTVoaGI2MXJ2ZzRpNTJtNXIgbnVzazQxaTloYjgzZnZ0cW5vNW5tNDZnYW9AZw",
+        "iCalUID": "3on7e5jjia5hhb61rvg4i52m5r@google.com",
+        "id": "3on7e5jjia5hhb61rvg4i52m5r",
+        "kind": "calendar#event",
+        "organizer": {
+            "displayName": "TESTES",
+            "email": "nusk41i9hb83fvtqno5nm46gao@group.calendar.google.com",
+            "self": true
+        },
+        "reminders": {
+            "useDefault": true
+        },
+        "sequence": 0,
+        "start": {
+            "dateTime": "2021-03-29T22:00:00-03:00"
+        },
+        "status": "confirmed",
+        "summary": "DAFSDGB",
+        "updated": "2021-03-30T01:25:04.982Z"
+    }
+}
