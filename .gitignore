@@ -1,0 +1,6 @@
+very_important_cal_file.pickle
+very_important_mail_file.pickle
+
+g*_credentials.json
+
+*.pyc
