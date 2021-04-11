@@ -1,7 +1,7 @@
 """Handles QR code creation, encryption and decoding
 PT:Lida com a criptografia, criação e decodificação de QR codes
 """
-
+import os
 from cryptography.fernet import Fernet
 from itertools import zip_longest
 import qrcode
@@ -10,6 +10,9 @@ import qrcode
 from pyzbar.pyzbar import decode
 from PIL import Image
 
+if "ENCRYPT_KEY_FILE" not in os.environ:
+    raise KeyError("Environment variable ENCRYPT_KEY_FILE not defined!")
+KEY_FILE = os.environ["ENCRYPT_KEY_FILE"]
 
 def generate_key():
     """Generates a crypto key and saves it into a file  
@@ -19,7 +22,7 @@ def generate_key():
         None
     """
     key = Fernet.generate_key()
-    with open("secret.key", "wb") as key_file:
+    with open(KEY_FILE, "wb") as key_file:
         key_file.write(key)
 
 
@@ -40,7 +43,7 @@ def encrypt_data(cal_id, eve_id):
         "".join(i for j in zip_longest(cal_id, eve_id, fillvalue=filler) for i in j)
     )[::-1]
     print(f"Embaralhado: {jumbled}")
-    key = open("secret.key", "rb").read()
+    key = open(KEY_FILE, "rb").read()
     encoded_message = jumbled.encode()
     f = Fernet(key)
     encrypted = f.encrypt(encoded_message)
@@ -100,7 +103,7 @@ def decrypt_data(input):
     # print(f'decrypt_data() - \n    input: {input}')
 
     encoded_input = bytes(input, "utf-8")
-    key = open("secret.key", "rb").read()
+    key = open(KEY_FILE, "rb").read()
     f = Fernet(key)
     decrypted = f.decrypt(encoded_input).decode()
 

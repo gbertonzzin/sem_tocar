@@ -3,4 +3,6 @@ very_important_mail_file.pickle
 
 g*_credentials.json
 
+*.key
+
 *.pyc

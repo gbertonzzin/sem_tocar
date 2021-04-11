@@ -20,5 +20,6 @@ Para que o programa tenha acesso aos seus calendarios e possa mandar emails pra 
 - `MAIL_TOKEN_FILE` para armazenamento de tokens para GMail
 - `GCAL_CREDENTIALS_FILE` para credenciais de Calendar
 - `MAIL_CREDENTIALS_FILE` para credenciais do GMail
+- `ENCRYPT_KEY_FILE` para armazenamento da chave criptografica
 
 Para a obtencao das credenciais, falar com Guilherme. :P
