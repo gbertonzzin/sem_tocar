@@ -17,6 +17,7 @@ from email.mime.base import MIMEBase
 from googleapiclient.errors import HttpError
 from modules.services import get_gmail_service
 
+
 def create_message(sender, to, subject, message_text):
     """Create a message for an email
     PT:Cria a mensagem para um email
@@ -31,14 +32,15 @@ def create_message(sender, to, subject, message_text):
     An object containing a base64url encoded email object.
     """
     message = MIMEText(message_text)
-    message['to'] = to
-    message['from'] = sender
-    message['subject'] = subject
+    message["to"] = to
+    message["from"] = sender
+    message["subject"] = subject
     raw = base64.urlsafe_b64encode(message.as_bytes())
     raw = raw.decode()
-    body = {'raw': raw}
+    body = {"raw": raw}
 
     return body
+
 
 def create_message_with_attachment(sender, to, subject, message_text, file):
     """Create a message for an email
@@ -55,9 +57,9 @@ def create_message_with_attachment(sender, to, subject, message_text, file):
         An object containing a base64url encoded email object.
     """
     message = MIMEMultipart()
-    message['to'] = to
-    message['from'] = sender
-    message['subject'] = subject
+    message["to"] = to
+    message["from"] = sender
+    message["subject"] = subject
 
     msg = MIMEText(message_text)
     message.attach(msg)
@@ -65,33 +67,34 @@ def create_message_with_attachment(sender, to, subject, message_text, file):
     content_type, encoding = mimetypes.guess_type(file)
 
     if content_type is None or encoding is not None:
-        content_type = 'application/octet-stream'
+        content_type = "application/octet-stream"
 
-    main_type, sub_type = content_type.split('/', 1)
+    main_type, sub_type = content_type.split("/", 1)
 
-    if main_type == 'text':
-        fp = open(file, 'rb')
+    if main_type == "text":
+        fp = open(file, "rb")
         msg = MIMEText(fp.read(), _subtype=sub_type)
         fp.close()
-    elif main_type == 'image':
-        fp = open(file, 'rb')
+    elif main_type == "image":
+        fp = open(file, "rb")
         msg = MIMEImage(fp.read(), _subtype=sub_type)
         fp.close()
     else:
-        fp = open(file, 'rb')
+        fp = open(file, "rb")
         msg = MIMEBase(main_type, sub_type)
         msg.set_payload(fp.read())
         fp.close()
 
     filename = os.path.basename(file)
-    msg.add_header('Content-Disposition', 'attachment', filename=filename)
+    msg.add_header("Content-Disposition", "attachment", filename=filename)
     message.attach(msg)
 
     raw = base64.urlsafe_b64encode(message.as_bytes())
     raw = raw.decode()
-    body = {'raw': raw}
+    body = {"raw": raw}
 
     return body
+
 
 def send_message(user_id, message):
     """Send an email message
@@ -108,11 +111,14 @@ def send_message(user_id, message):
     """
     service = get_gmail_service()
     try:
-        message = (service.users().messages().send(userId=user_id, body=message).execute())
-        print('E-mail enviado!\n    ID da mensagem e-mail: %s' % message['id'])
+        message = (
+            service.users().messages().send(userId=user_id, body=message).execute()
+        )
+        print("E-mail enviado!\n    ID da mensagem e-mail: %s" % message["id"])
         return message
     except HttpError as error:
-        print('Ocorreu um erro:: %s' % error)
+        print("Ocorreu um erro:: %s" % error)
+
 
 def format_text():
     pass
