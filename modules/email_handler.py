@@ -1,7 +1,7 @@
 """Handles email formatting, creation and sending
 PT:Lida com a formatação, criação e envio de e-mails
 """
-
+import logging
 from __future__ import print_function
 import os.path
 from googleapiclient.discovery import build
@@ -16,6 +16,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from googleapiclient.errors import HttpError
 from modules.services import get_gmail_service
+
+logger = logging.getLogger(__name__)
 
 
 def create_message(sender, to, subject, message_text):
@@ -114,10 +116,11 @@ def send_message(user_id, message):
         message = (
             service.users().messages().send(userId=user_id, body=message).execute()
         )
-        print("E-mail enviado!\n    ID da mensagem e-mail: %s" % message["id"])
+        logger.info("E-mail enviado!")
+        logger.info("ID da mensagem e-mail: %s" % message["id"])
         return message
     except HttpError as error:
-        print("Ocorreu um erro:: %s" % error)
+        logger.error("Ocorreu um erro:: %s" % error, exc_info=True)
 
 
 def format_text():

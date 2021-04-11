@@ -1,6 +1,7 @@
 """Handles QR code creation, encryption and decoding
 PT:Lida com a criptografia, criação e decodificação de QR codes
 """
+import logging
 import os
 from cryptography.fernet import Fernet
 from itertools import zip_longest
@@ -9,6 +10,9 @@ import qrcode
 # used for decoding, maybe use qrcode for this as well?
 from pyzbar.pyzbar import decode
 from PIL import Image
+
+logger = logging.getLogger(__name__)
+
 
 if "ENCRYPT_KEY_FILE" not in os.environ:
     raise KeyError("Environment variable ENCRYPT_KEY_FILE not defined!")
@@ -36,18 +40,18 @@ def encrypt_data(cal_id, eve_id):
     Returns:
         Encrypted data, 164-long string
     """
-    # print(f'encrypt_data - \n    cal_id: {cal_id}, eve_id: {eve_id}')
+    logger.debug(f'encrypt_data - \n    cal_id: {cal_id}, eve_id: {eve_id}')
 
     filler = ""  # CRYPTO_FILLER, not used
     jumbled = (
         "".join(i for j in zip_longest(cal_id, eve_id, fillvalue=filler) for i in j)
     )[::-1]
-    print(f"Embaralhado: {jumbled}")
+    logger.info(f"Embaralhado: {jumbled}")
     key = open(KEY_FILE, "rb").read()
     encoded_message = jumbled.encode()
     f = Fernet(key)
     encrypted = f.encrypt(encoded_message)
-    print(encrypted)
+    logger.info(encrypted)
 
     return encrypted
 
@@ -63,7 +67,7 @@ def produce_QR(qrinput, outFile):
     Returns:
         None
     """
-    # print(f'produce_QR')
+    logger.debug(f'produce_QR')
 
     qr = qrcode.QRCode(version=1, box_size=10, border=5)
     qr.add_data(qrinput)
@@ -81,7 +85,7 @@ def check_QR(file):  # NOT USED, remove?
     Returns:
         Data retrieved from QR code, or False
     """
-    # print(f'check_QR() - \n    file: {file}')
+    logger.debug(f'check_QR() - \n    file: {file}')
 
     QRdata = decode(Image.open(file))
     if QRdata:
@@ -100,7 +104,7 @@ def decrypt_data(input):
     Returns:
         Tuple containing the calendar ID and event ID retrieved
     """
-    # print(f'decrypt_data() - \n    input: {input}')
+    logger.debug(f'decrypt_data() - \n    input: {input}')
 
     encoded_input = bytes(input, "utf-8")
     key = open(KEY_FILE, "rb").read()
@@ -110,6 +114,6 @@ def decrypt_data(input):
     # .replace("$","")#for use with CRYPTO_FILLER
     unjumbled_cal_id = (decrypted[1::2])[::-1]
     unjumbled_eve_id = (decrypted[0::2])[::-1]  # .replace("$","")
-    print("cal ID: ", unjumbled_cal_id, " | event ID: ", unjumbled_eve_id)
+    logger.info("cal ID: ", unjumbled_cal_id, " | event ID: ", unjumbled_eve_id)
 
     return unjumbled_cal_id, unjumbled_eve_id

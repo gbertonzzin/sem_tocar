@@ -1,9 +1,12 @@
+import logging
 import pickle
 import os
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
+
+logger = logging.getLogger(__name__)
 
 # If modifying these scopes, delete the file token.pickle.
 
@@ -35,7 +38,7 @@ def get_calendar_service():
     Returns:
         Gcalendar API service
     """
-    # print('get_calendar_service()')
+    logger.debug('get_calendar_service()')
 
     if "GCAL_TOKEN_FILE" not in os.environ:
         raise KeyError("Environment variable GCAL_TOKEN_FILE not defined!")
@@ -59,7 +62,7 @@ def get_gmail_service():
     Returns:
         Gmail API service
     """
-    # print('get_gmail_service()')
+    logger.debug('get_gmail_service()')
 
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first

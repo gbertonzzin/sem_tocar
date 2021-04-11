@@ -7,6 +7,9 @@ from modules.services import get_calendar_service
 
 # from feed.date import rfc3339
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def get_calendars():
@@ -25,7 +28,7 @@ def get_calendars():
             all_calendars[i] = calendar
         return all_calendars
     else:
-        print("Nâo há calendários!")
+        logger.info("Nâo há calendários!")
         return False
 
 
@@ -39,7 +42,7 @@ def get_events(cal_id, days_future):
     Returns:
         A dict with the events, or False
     """
-    # print(f'get_events() - \n    cal_id: {cal_id}  days_future: {days_future}')
+    logger.debug(f'get_events() - \n    cal_id: {cal_id}  days_future: {days_future}')
 
     today_start = datetime.combine(date.today(), time()).astimezone().isoformat()
     max_days = (
@@ -69,7 +72,7 @@ def get_events(cal_id, days_future):
         return all_events
     else:
         return False
-        print("Não há eventos!")
+        logger.info("Não há eventos!")
 
 
 def get_today_events(cal_id):
@@ -81,7 +84,7 @@ def get_today_events(cal_id):
     Returns:
         A dict with the events, or False
     """
-    # print(f'get_today_events() - \n    cal_id: {cal_id}')
+    logger.debug(f'get_today_events() - \n    cal_id: {cal_id}')
 
     today_start = datetime.combine(date.today(), time()).astimezone().isoformat()
     today_end = (
@@ -110,7 +113,7 @@ def get_today_events(cal_id):
             all_events[i] = event
         return all_events
     else:
-        print("Não há eventos hoje!")
+        logger.info("Não há eventos hoje!")
         return False
 
 
@@ -124,7 +127,7 @@ def check_event(cal_id, event_id, cal_name):
     Returns:
         Boolean
     """
-    # print(f'check_event() - \n    cal_id: {cal_id}\n    event_id: {event_id}')
+    logger.debug(f'check_event() - \n    cal_id: {cal_id}\n    event_id: {event_id}')
 
     with open(f"json\\{cal_name}_today_events.json") as f:
         today_data = json.load(f)
@@ -149,11 +152,13 @@ def check_event(cal_id, event_id, cal_name):
                 # TFend = rfc3339.tf_from_timestamp(end)
 
                 if TFstart < TFnow and TFend > TFnow:
-                    print("O horário confere \n Entrada permitida!")
+                    logger.info("O horário confere")
+                    logger.info("Entrada permitida!")
                     return True
                 else:
-                    print("O horário diverge \n Entrada negada!")
+                    logger.info("O horário diverge")
+                    logger.info("Entrada negada!")
                     return False
             else:
-                print("Evento não encontrado pelo API")
+                logger.info("Evento não encontrado pelo API")
                 return False

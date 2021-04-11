@@ -1,8 +1,10 @@
 """Handles JSON files
 PT:Lida com arquivos JSON
 """
-
+import logging
 import os, json
+
+logger = logging.getLogger(__name__)
 
 
 def json_file_check(new_json, last_json):
@@ -16,23 +18,23 @@ def json_file_check(new_json, last_json):
     Returns:
     Boolean
     """
-    # print(f'json_file_check() - \n    new_json: {new_json}  last_json: {last_json}')
+    logger.debug(f'json_file_check() - \n    new_json: {new_json}  last_json: {last_json}')
 
     if os.path.isfile(new_json):
-        print(f"{new_json} existe! \n    Prosseguindo...")
+        logger.info(f"{new_json} existe! \n    Prosseguindo...")
         if os.path.isfile(last_json):
-            print(f"{last_json} existe! \n    Prosseguindo...")
+            logger.info(f"{last_json} existe! \n    Prosseguindo...")
             os.remove(last_json)
             os.rename(new_json, last_json)
-            print(f"{new_json} foi renomeado para {last_json}")
+            logger.info(f"{new_json} foi renomeado para {last_json}")
             return True
         else:
-            print(f"{last_json} não encontrado!")
+            logger.info(f"{last_json} não encontrado!")
             os.rename(new_json, last_json)
-            print(f"{new_json} foi renomeado para {last_json}")
+            logger.info(f"{new_json} foi renomeado para {last_json}")
             return True
     else:
-        print(f"{new_json} não encontrado")
+        logger.info(f"{new_json} não encontrado")
         return False
 
 
@@ -45,7 +47,7 @@ def compare_json(new_json, last_json):
     Returns:
         A set with all new events IDs, or False
     """
-    # print(f'compare_json() - \n    new_json: {new_json}  last_json: {last_json}')
+    logger.debug(f'compare_json() - \n    new_json: {new_json}  last_json: {last_json}')
     with open(new_json) as f:
         present_data = json.load(f)
     with open(last_json) as f:
@@ -56,7 +58,7 @@ def compare_json(new_json, last_json):
     new_events = list(present_events.difference(last_events))
 
     if len(new_events) > 0:
-        print("Novos eventos:", new_events)
+        logger.info("Novos eventos:", new_events)
     else:
-        print("Não há novos eventos!")
+        logger.info("Não há novos eventos!")
     return new_events

@@ -1,7 +1,7 @@
 """Handles webcam work
 PT:Lida com a webcam
 """
-
+import logging
 import cv2
 import time
 import datetime
@@ -9,6 +9,8 @@ import argparse
 from datetime import timezone  # will it me necessary?
 from pyzbar.pyzbar import decode, ZBarSymbol
 from modules.sem_parar_config import *
+
+logger = logging.getLogger(__name__)
 
 
 def decoder(image):
@@ -46,7 +48,7 @@ def qr_logger(data, image):
     Returns:
         None
     """
-    # print('qr_logger()')
+    logger.debug("'qr_logger()'")
 
     timestampStr = datetime.datetime.now().strftime("%d%m%Y_%H%M%S")
 
@@ -73,7 +75,7 @@ def webcam_handler():
     Returns:
         data:encrypted data retrieved from QR code
     """
-    # print('webcam_handler()')
+    logger.info("'webcam_handler()'")
 
     cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     while True:
