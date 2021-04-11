@@ -36,26 +36,6 @@ def json_file_check(new_json, last_json):
         return False
 
 
-def write_json(
-    data, file
-):  # aprimorar ou substituir por algo mais elegante (one liner)
-    """Writes data to a json file  PT: Escreve um arquivo json
-    
-    Args:
-        data: Data to be written
-        file: Filename for the output
-
-    Returns:
-        None
-    """
-    # print(f'write_json() - \n    data, file: {file}')
-
-    Jfile = open(file, "w")
-    json_data = json.dumps(data, indent=4, sort_keys=True)
-    Jfile.write(json_data)
-    Jfile.close()
-
-
 def compare_json(new_json, last_json):
     """Compares the json files to check for new events  PT:
     
@@ -66,26 +46,17 @@ def compare_json(new_json, last_json):
         A set with all new events IDs, or False
     """
     # print(f'compare_json() - \n    new_json: {new_json}  last_json: {last_json}')
-
-    present_events = set()
-    last_events = set()
-    new_events = set()
-
     with open(new_json) as f:
         present_data = json.load(f)
     with open(last_json) as f:
         last_data = json.load(f)
 
-    for event in present_data:
-        present_events.add(present_data[event]["id"])
-    for event in last_data:
-        last_events.add(last_data[event]["id"])
-
-    new_events = present_events.difference(last_events)
+    present_events = set([present_data[event]["id"] for event in present_data])
+    last_events = set([last_data[event]["id"] for event in last_data])
+    new_events = list(present_events.difference(last_events))
 
     if len(new_events) > 0:
         print("Novos eventos:", new_events)
-        return new_events
     else:
         print("Não há novos eventos!")
-        return False
+    return new_events

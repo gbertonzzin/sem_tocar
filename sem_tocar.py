@@ -2,6 +2,7 @@
 Main controler for the app
 PT:Controlador do app
 """
+import json
 # TODO: multiple calendars, folders for each, etc.
 # TODO: config file
 # TODO: better GUI
@@ -10,8 +11,8 @@ PT:Controlador do app
 
 from datetime import date
 from os import mkdir
-from modules.calendar_handler import *
-from modules.JSON_handler import *
+from modules.calendar_handler import get_calendars, get_events
+from modules.JSON_handler import json_file_check
 from modules.webcam_handler import *
 from modules.QR_handler import *
 from modules.email_handler import *
@@ -33,7 +34,7 @@ def routine():
     """
     calendars = get_calendars()  # FLAT IS BETTER THAN NESTED
     if calendars:
-        write_json(calendars, f"json\\calendars.json")
+        json.dump(calendars, open(os.path.sep.join(["json", "calendars.json"]), "wt"))
         for calendar in calendars:
             if "selected" in calendars[calendar]:
                 cal_id = calendars[calendar]["id"][0:26]
