@@ -5,7 +5,7 @@ PT:Lida com pedidos do Gcalendar API
 from datetime import date, datetime, timedelta, time, timezone
 from modules.services import get_calendar_service
 
-# from feed.date import rfc3339
+import pendulum
 import json
 import logging
 
@@ -72,38 +72,46 @@ def check_event(cal_id, event_id, cal_name):
     Returns:
         Boolean
     """
-    logger.debug(f"check_event() - \n    cal_id: {cal_id}\n    event_id: {event_id}")
+    logger.debug(f"check_event() - {cal_id=} - {event_id=}")
 
-    with open(f"json\\{cal_name}_today_events.json") as f:
+    with open(make_path(f"{cal_name}_today_events.json", "json")) as f:
         today_data = json.load(f)
-    for event in today_data:
-        this_event = today_data[event]
-        if event_id == this_event["id"]:
-            service = get_calendar_service()
-            event = (
-                service.events()
-                .get(
-                    calendarId=f"{cal_id}@group.calendar.google.com",
-                    eventId=this_event["id"],
-                )
-                .execute()
+    if event_id not in today_data:
+        logger.debug(f"{event_id=} nao esta no calendario!")
+        return False
+    else:
+        this_event = today_data[event_id]
+        service = get_calendar_service()
+        event = (
+            service.events()
+            .get(
+                calendarId=f"{cal_id}@group.calendar.google.com",
+                eventId=this_event["id"],
             )
-            if event:
-                now = datetime.now(timezone.utc).astimezone().isoformat()
-                start = event["start"].get("dateTime", event["start"].get("date"))
-                end = event["end"].get("dateTime", event["end"].get("date"))
-                # TFnow = rfc3339.tf_from_timestamp(now)
-                # TFstart = rfc3339.tf_from_timestamp(start)
-                # TFend = rfc3339.tf_from_timestamp(end)
+            .execute()
+        )
+        if event:
+            now = pendulum.now().utcnow()
+            start = parse_time_object(event["start"]).in_tz("UTC")
+            end = parse_time_object(event["end"]).in_tz("UTC")
 
-                if TFstart < TFnow and TFend > TFnow:
-                    logger.info("O horário confere")
-                    logger.info("Entrada permitida!")
-                    return True
-                else:
-                    logger.info("O horário diverge")
-                    logger.info("Entrada negada!")
-                    return False
+            if start <= now < end:
+                logger.info("O horário confere")
+                logger.info("Entrada permitida!")
+                return True
             else:
-                logger.info("Evento não encontrado pelo API")
+                logger.info("O horário diverge")
+                logger.info("Entrada negada!")
                 return False
+        else:
+            logger.info("Evento não encontrado pelo API")
+            return False
+
+
+def parse_time_object(tobject):
+    key = "dateTime"
+    if "date" in tobject:
+        key = "date"
+    return pendulum.parse(tobject[key]).set(
+        tz=pendulum.tz.timezone(tobject["timeZone"])
+    )
