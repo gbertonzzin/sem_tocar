@@ -30,7 +30,7 @@ def main():
 
 
 def make_path(fname, *directories):
-    return os.path.sep.join(directories + [fname])
+    return os.path.sep.join(list(directories) + [fname])
 
 
 def routine():
@@ -50,7 +50,7 @@ def routine():
                 process_calendar(calendar)
 
 
-def processed_calendar(calendar):
+def process_calendar(calendar):
     cal_id = calendar["id"][0:26]
     cal_name = calendar["summary"]
     file_OK = json_file_check(
@@ -82,7 +82,7 @@ def processed_calendar(calendar):
 
 def process_new_events(calendar_id, event_id, events):
     encrypted = encrypt_data(calendar_id, event_id)
-    produce_QR(encrypted, f"QR\\QR_{event_id}.png")
+    produce_QR(encrypted, make_path(f"QR_{event_id}.png", "QR"))
     for event in events.values():
         if event_id == event["id"]:
             if "attendees" in event:

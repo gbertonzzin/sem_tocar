@@ -1,8 +1,8 @@
 """Handles email formatting, creation and sending
 PT:Lida com a formatação, criação e envio de e-mails
 """
-import logging
 from __future__ import print_function
+import logging
 import os.path
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
