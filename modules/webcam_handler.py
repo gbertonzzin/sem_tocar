@@ -19,7 +19,7 @@ def decoder(image):
 
     Args:
         image:The image to be handled
-    
+
     Returns:
         The retrieved data from QR code
     """
@@ -69,9 +69,9 @@ def qr_logger(data, image):
 
 
 def webcam_handler():
-    """Turns the camera on and sends each frame to the decoder  
+    """Turns the camera on and sends each frame to the decoder
     PT:Liga a câmera e envia cada frame para o decoder
-    
+
     Returns:
         data:encrypted data retrieved from QR code
     """

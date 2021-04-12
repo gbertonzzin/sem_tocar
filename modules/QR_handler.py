@@ -18,8 +18,9 @@ if "ENCRYPT_KEY_FILE" not in os.environ:
     raise KeyError("Environment variable ENCRYPT_KEY_FILE not defined!")
 KEY_FILE = os.environ["ENCRYPT_KEY_FILE"]
 
+
 def generate_key():
-    """Generates a crypto key and saves it into a file  
+    """Generates a crypto key and saves it into a file
     PT:Gera uma chave criptogáfica e salva em um arquivo
 
     Returns:
@@ -31,16 +32,16 @@ def generate_key():
 
 
 def encrypt_data(cal_id, eve_id):
-    """Jumbles and encrypts the two inputs given  
+    """Jumbles and encrypts the two inputs given
     PT:Embaralha e encripta os dois argumentos
-    
+
     Args:
         cal_id:Calendar ID, 26-long string
         eve_id:Event ID, 26-long string
     Returns:
         Encrypted data, 164-long string
     """
-    logger.debug(f'encrypt_data - \n    cal_id: {cal_id}, eve_id: {eve_id}')
+    logger.debug(f"encrypt_data - \n    cal_id: {cal_id}, eve_id: {eve_id}")
 
     filler = ""  # CRYPTO_FILLER, not used
     jumbled = (
@@ -57,9 +58,9 @@ def encrypt_data(cal_id, eve_id):
 
 
 def produce_QR(qrinput, outFile):
-    """Generates a QR code and outputs to a PNG file  
+    """Generates a QR code and outputs to a PNG file
     PT:Gera um código QR e salva o arquivo PNG
-    
+
     Args:
         qrinput:Data to be put into the QR
         outFile:Filename for the output
@@ -67,7 +68,7 @@ def produce_QR(qrinput, outFile):
     Returns:
         None
     """
-    logger.debug(f'produce_QR')
+    logger.debug(f"produce_QR")
 
     qr = qrcode.QRCode(version=1, box_size=10, border=5)
     qr.add_data(qrinput)
@@ -77,15 +78,15 @@ def produce_QR(qrinput, outFile):
 
 
 def check_QR(file):  # NOT USED, remove?
-    """ Reads the provided image file and decodes the QR code if present  
+    """Reads the provided image file and decodes the QR code if present
     PT:Lê uma imagem e decodifica o código QR se houver
-    
+
     Args:
         file: .png file to be checked
     Returns:
         Data retrieved from QR code, or False
     """
-    logger.debug(f'check_QR() - \n    file: {file}')
+    logger.debug(f"check_QR() - \n    file: {file}")
 
     QRdata = decode(Image.open(file))
     if QRdata:
@@ -98,13 +99,13 @@ def check_QR(file):  # NOT USED, remove?
 def decrypt_data(input):
     """Decrypts and unjumbles the data provided
     PT:
-    
+
     Args:
         input: data to be decrypted
     Returns:
         Tuple containing the calendar ID and event ID retrieved
     """
-    logger.debug(f'decrypt_data() - \n    input: {input}')
+    logger.debug(f"decrypt_data() - \n    input: {input}")
 
     encoded_input = bytes(input, "utf-8")
     key = open(KEY_FILE, "rb").read()

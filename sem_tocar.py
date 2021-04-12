@@ -4,6 +4,7 @@ PT:Controlador do app
 """
 import json
 import logging
+
 # TODO: multiple calendars, folders for each, etc.
 # TODO: config file
 # TODO: better GUI
@@ -20,7 +21,9 @@ from modules.email_handler import *
 from modules.sem_parar_config import *
 
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(name)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+)
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +39,7 @@ def make_path(fname, *directories):
 def routine():
     """
     Establishes routine for the app to execute every so often  PT:
-    
+
     Args:
         None?
     Returns:
@@ -58,9 +61,7 @@ def process_calendar(calendar):
         make_path(f"{cal_name}_all_events_{date.today()}.json", "json"),
     )
 
-    events = get_events(
-        f"{cal_id}@group.calendar.google.com", DAYS_TO_REQUEST
-    )
+    events = get_events(f"{cal_id}@group.calendar.google.com", DAYS_TO_REQUEST)
     if events:
         write_json(events, make_path(f"{cal_name}_all_events_new.json", "json"))
         if file_OK:
@@ -77,7 +78,6 @@ def process_calendar(calendar):
     else:
         logger.info("Não há eventos!")
         return False
-
 
 
 def process_new_events(calendar_id, event_id, events):

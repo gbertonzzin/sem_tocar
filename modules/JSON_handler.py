@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 def json_file_check(new_json, last_json):
-    """Checks if the necessary json files exist 
+    """Checks if the necessary json files exist
     PT:Verifica se os arquivos json necessários existem
 
     Args:
@@ -18,7 +18,9 @@ def json_file_check(new_json, last_json):
     Returns:
     Boolean
     """
-    logger.debug(f'json_file_check() - \n    new_json: {new_json}  last_json: {last_json}')
+    logger.debug(
+        f"json_file_check() - \n    new_json: {new_json}  last_json: {last_json}"
+    )
 
     if os.path.isfile(new_json):
         logger.info(f"{new_json} existe! \n    Prosseguindo...")
@@ -40,14 +42,14 @@ def json_file_check(new_json, last_json):
 
 def compare_json(new_json, last_json):
     """Compares the json files to check for new events  PT:
-    
+
     Args:
         new_json: Filename for the requested events
         last_json: Filename for the previous requested events
     Returns:
         A set with all new events IDs, or False
     """
-    logger.debug(f'compare_json() - \n    new_json: {new_json}  last_json: {last_json}')
+    logger.debug(f"compare_json() - \n    new_json: {new_json}  last_json: {last_json}")
     with open(new_json) as f:
         present_data = json.load(f)
     with open(last_json) as f:
