@@ -19,45 +19,34 @@ def get_calendars():
     Returns:
         A dict with the calendars, or False
     """
-    all_calendars = {}
     service = get_calendar_service()
     calendars_result = service.calendarList().list().execute()
     calendars = calendars_result.get("items", [])
-    if calendars:
-        for i, calendar in enumerate(calendars):
-            all_calendars[i] = calendar
-        return all_calendars
-    else:
-        logger.info("Nâo há calendários!")
-        return False
+    logger.debug(f"{calendars=}")
+    return {i: calendar for i, calendar in enumerate(calendars)}
 
 
 def get_events(cal_id, days_future):
-    """Requests future non-recursive events up to a number of days  
+    """Requests future non-recursive events up to a number of days
     PT: Pede os eventos não-recursivos tantos dias no futuro
-    
+
     Args:
         cal_id:Calendar ID
         days_future: How many days to fetch
     Returns:
         A dict with the events, or False
     """
-    logger.debug(f'get_events() - \n    cal_id: {cal_id}  days_future: {days_future}')
+    logger.debug(f"get_events() - \n    cal_id: {cal_id}  days_future: {days_future}")
 
-    today_start = datetime.combine(date.today(), time()).astimezone().isoformat()
-    max_days = (
-        datetime.combine(date.today() + timedelta(days=days_future), time())
-        .astimezone()
-        .isoformat()
-    )
-    all_events = {}
+    today_start = datetime.combine(date.today(), time()).astimezone()
+    max_days = today_start + timedelta(days=days_future)
     service = get_calendar_service()
     events_result = (
         service.events()
         .list(
             calendarId=cal_id,
-            timeMin=today_start,
-            timeMax=max_days,
+            timeMin=today_start.isoformat(),
+            timeMax=max_days.isoformat(),
             maxResults=2500,
             singleEvents=False,
             orderBy="updated",
@@ -66,68 +55,24 @@ def get_events(cal_id, days_future):
     )
     events = events_result.get("items", [])
 
-    if events:
-        for i, event in enumerate(events):
-            all_events[i] = event
-        return all_events
-    else:
-        return False
-        logger.info("Não há eventos!")
+    return {i: event for i, event in enumerate(events)}
 
 
 def get_today_events(cal_id):
-    """Requests all events expected for the current day  
-    PT: Pede os eventos do dia atual
-    
-    Args:
-        cal_id: Calendar ID
-    Returns:
-        A dict with the events, or False
-    """
-    logger.debug(f'get_today_events() - \n    cal_id: {cal_id}')
-
-    today_start = datetime.combine(date.today(), time()).astimezone().isoformat()
-    today_end = (
-        datetime.combine(date.today() + timedelta(days=1), time())
-        .astimezone()
-        .isoformat()
-    )
-    all_events = {}
-    service = get_calendar_service()
-    events_result = (
-        service.events()
-        .list(
-            calendarId=cal_id,
-            timeMin=today_start,
-            timeMax=today_end,
-            maxResults=2500,
-            singleEvents=True,
-            orderBy="updated",
-        )
-        .execute()
-    )
-
-    events = events_result.get("items", [])
-    if events:
-        for i, event in enumerate(events):
-            all_events[i] = event
-        return all_events
-    else:
-        logger.info("Não há eventos hoje!")
-        return False
+    return get_events(cal_id, 1)
 
 
 def check_event(cal_id, event_id, cal_name):
-    """Checks if event is happening right now  
+    """Checks if event is happening right now
     PT:Verifica se o evento está ocorrento agora
-    
+
     Args:
         cal_id: Calendar ID
         event_id: Event ID
     Returns:
         Boolean
     """
-    logger.debug(f'check_event() - \n    cal_id: {cal_id}\n    event_id: {event_id}')
+    logger.debug(f"check_event() - \n    cal_id: {cal_id}\n    event_id: {event_id}")
 
     with open(f"json\\{cal_name}_today_events.json") as f:
         today_data = json.load(f)
