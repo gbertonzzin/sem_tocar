@@ -21,10 +21,13 @@ def get_calendars():
     Returns:
         A dict with the calendars, or False
     """
+    logger.debug("get_calendars()")
+    
+    logger.info("Requerindo eventos...")
     service = get_calendar_service()
     calendars_result = service.calendarList().list().execute()
     calendars = calendars_result.get("items", [])
-    logger.debug(f"{calendars=}")
+    #logger.debug(f"{calendars=}")
     return {i: calendar for i, calendar in enumerate(calendars)}
 
 
@@ -38,11 +41,12 @@ def get_events(cal_id, days_future):
     Returns:
         A dict with the events, or False
     """
-    logger.debug(f"get_events() - \n    cal_id: {cal_id}  days_future: {days_future}")
+    logger.debug(f"get_events()")
 
     today_start = datetime.combine(date.today(), time()).astimezone()
     max_days = today_start + timedelta(days=days_future)
     service = get_calendar_service()
+    logger.info("Requerindo eventos...")
     events_result = (
         service.events()
         .list(
@@ -61,6 +65,8 @@ def get_events(cal_id, days_future):
 
 
 def get_today_events(cal_id):
+    logger.debug("get_today_events()")
+    
     return get_events(cal_id, 1)
 
 
@@ -74,45 +80,47 @@ def check_event(cal_id, event_id, cal_name):
     Returns:
         Boolean
     """
-    logger.debug(f"check_event() - {cal_id=} - {event_id=}")
+    logger.debug("check_event()")
 
     #with open(make_path(f"{cal_name}_today_events.json", "json")) as f:
-    with open(os.path.sep.join("json" + f"{cal_name}_today_events.json")) as f:
+    with open(os.path.sep.join(["json"] + [f"{cal_name}_today_events.json"])) as f:
         today_data = json.load(f)
-    if event_id not in today_data:
-        logger.debug(f"{event_id=} nao esta no calendario!")
-        return False
-    else:
-        this_event = today_data[event_id]
-        service = get_calendar_service()
-        event = (
-            service.events()
-            .get(
-                calendarId=f"{cal_id}@group.calendar.google.com",
-                eventId=this_event["id"],
+    for event_object in today_data.values():
+        if event_id == event_object["id"][0:26]:#Watch out for recursive events! Only the first 26 chars matter now
+            service = get_calendar_service()
+            event = (
+                service.events()
+                .get(
+                    calendarId=f"{cal_id}@group.calendar.google.com",
+                    eventId=event_object["id"], #Gotta use the database id and not the given id
+                )                               #in case it is a recursive event (with all that time junk at the end)
+                .execute()
             )
-            .execute()
-        )
-        if event:
-            now = pendulum.now().utcnow()
-            start = parse_time_object(event["start"]).in_tz("UTC")
-            end = parse_time_object(event["end"]).in_tz("UTC")
+            if event:
+                #now = pendulum.now().utcnow().in_tz("America/Sao_Paulo")
+                #start = parse_time_object(event["start"]).in_tz("UTC")
+                #end = parse_time_object(event["end"]).in_tz("UTC")
+                now = pendulum.now().int_timestamp
+                start = parse_time_object(event["start"])
+                end = parse_time_object(event["end"])
+                print(now)
+                print(start)
+                print(end)
 
-            if start <= now < end:
-                logger.info("O horário confere")
-                return True
+                if start <= now < end:
+                    logger.info("O horário confere")
+                    return True
+                else:
+                    logger.info("O horário diverge")
+                    
             else:
-                logger.info("O horário diverge")
-                return False
+                logger.info("Evento não encontrado pelo API")
+                
         else:
-            logger.info("Evento não encontrado pelo API")
-            return False
+            logger.debug(f"{event_id} nao esta no calendario!")
+            print(event_id, event_object["id"][0:26])
+            
 
 
 def parse_time_object(tobject):
-    key = "dateTime"
-    if "date" in tobject:
-        key = "date"
-    return pendulum.parse(tobject[key]).set(
-        tz=pendulum.tz.timezone(tobject["timeZone"])
-    )
+    return pendulum.parse(tobject["dateTime"]).int_timestamp #.set(tz=pendulum.tz.timezone(tobject["timeZone"]))

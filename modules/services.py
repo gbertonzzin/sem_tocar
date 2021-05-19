@@ -14,23 +14,28 @@ logger = logging.getLogger(__name__)
 google_credentials = "credentials.json"
 
 def authenticate(scope, token):
+    logger.debug("authenticate()")
     creds = None
 
     if os.path.exists(token):
         with open(token, "rb") as token_file:
-            creds = pickle.load(token_file)
-    else:
-        logger.debug(f"{token} for {scope} not found! Creating...")
-        
+            creds = pickle.load(token_file)   
+            logger.info(f"Utilizando o token {token} para o escopo {scope}...")     
 
     if not creds or not creds.valid:
+        logger.warning("Credenciais inválidas or expiradas!")
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(google_credentials, scope)
-            creds = flow.run_local_server(port=0)
+            logger.info("Requerindo acesso ao usuário...")
+            if os.path.exists(google_credentials):
+                flow = InstalledAppFlow.from_client_secrets_file(google_credentials, scope)
+                creds = flow.run_local_server(port=0)   #FIX: If user closes the auth browser window, everything freezes
+            else:
+                logger.warning("Arquivo de credenciais 'credentials.json' não encontrado!")
 
         with open(token, "wb") as token_file:
+            logger.info(f"Criando token de acesso '{token}.json' para o escopo '{scope}'...")
             pickle.dump(creds, token_file)
 
     return creds
@@ -44,8 +49,7 @@ def get_calendar_service():
         Gcalendar API service
     """
     logger.debug("get_calendar_service()")
-
-
+    
     creds = authenticate(["https://www.googleapis.com/auth/calendar"], "gcal_token")
     if not creds:
         raise ValueError("Houve um erro na autenticação do GCal API!")

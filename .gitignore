@@ -1,6 +1,6 @@
 #sensitive stuff
 *.pickle
-*token.json
+*token*
 credentials.json
 *.key
 

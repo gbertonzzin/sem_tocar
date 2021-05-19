@@ -15,6 +15,7 @@ cryptography = "^3.4.7"
 qrcode = "^6.1"
 pillow = "^8.2.0"
 pendulum = "^2.1.2"
+coloredlogs = "^15.0"
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"

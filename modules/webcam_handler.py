@@ -22,6 +22,7 @@ def decoder(image):
     Returns:
         The retrieved data from QR code
     """
+    #logger.debug("decoder()") Oh, HELL NAW!
 
     gray_img = cv2.cvtColor(image, 0)
     barcode = decode(gray_img, symbols=[ZBarSymbol.QRCODE])
@@ -37,8 +38,8 @@ def decoder(image):
 
 
 def qr_logger(data, image):     #TODO
-    """Saves the QR image and logs it to a .csv
-    PT:Salva a imagem QR e loga em um .csv
+    """Saves the QR image and logs it
+    PT:Salva a imagem QR e guarda logs
 
     Args:
         data:Data encoded on the QR
@@ -47,24 +48,15 @@ def qr_logger(data, image):     #TODO
     Returns:
         None
     """
-    logger.debug("'qr_logger()'")
+    logger.debug("qr_logger()")
 
     timestampStr = datetime.datetime.now().strftime("%d%m%Y_%H%M%S")
 
     if SAVE_WEBCAM == True:
         cv2.imwrite(f"img\\img{timestampStr}.png", image)
+        
+    #TODO: log webcam info into JSON for security purposes
 
-    ap = argparse.ArgumentParser()
-    ap.add_argument(
-        "-o", "--output", type=str, default="QR_logs.csv", help=""
-    )  # not logging correctly, change to JSON
-    args = vars(ap.parse_args())
-    csv = open(args["output"], "w")
-    found = set()
-    if data not in found:
-        csv.write(f"{timestampStr}-{data}\n")
-        csv.flush()
-        found.add(data)
 
 
 def webcam_handler():
@@ -74,13 +66,13 @@ def webcam_handler():
     Returns:
         data:encrypted data retrieved from QR code
     """
-    logger.info("'webcam_handler()'")
+    logger.debug("webcam_handler()")
 
     cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     while True:
         ret, frame = cap.read()
-        data = decoder(frame)
         cv2.imshow("Image", frame)
+        data = decoder(frame)
         if isinstance(data, str):
             cv2.destroyAllWindows()
             del cap
