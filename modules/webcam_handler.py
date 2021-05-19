@@ -6,9 +6,8 @@ import cv2
 import time
 import datetime
 import argparse
-from datetime import timezone  # will it me necessary?
 from pyzbar.pyzbar import decode, ZBarSymbol
-from modules.sem_parar_config import *
+from modules.sem_tocar_config import *
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +36,7 @@ def decoder(image):
             return qr_data
 
 
-def qr_logger(data, image):
+def qr_logger(data, image):     #TODO
     """Saves the QR image and logs it to a .csv
     PT:Salva a imagem QR e loga em um .csv
 

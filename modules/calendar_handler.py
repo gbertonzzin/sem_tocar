@@ -4,12 +4,14 @@ PT:Lida com pedidos do Gcalendar API
 
 from datetime import date, datetime, timedelta, time, timezone
 from modules.services import get_calendar_service
+import os
 
 import pendulum
 import json
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 
 def get_calendars():
@@ -74,7 +76,8 @@ def check_event(cal_id, event_id, cal_name):
     """
     logger.debug(f"check_event() - {cal_id=} - {event_id=}")
 
-    with open(make_path(f"{cal_name}_today_events.json", "json")) as f:
+    #with open(make_path(f"{cal_name}_today_events.json", "json")) as f:
+    with open(os.path.sep.join("json" + f"{cal_name}_today_events.json")) as f:
         today_data = json.load(f)
     if event_id not in today_data:
         logger.debug(f"{event_id=} nao esta no calendario!")
@@ -97,11 +100,9 @@ def check_event(cal_id, event_id, cal_name):
 
             if start <= now < end:
                 logger.info("O horário confere")
-                logger.info("Entrada permitida!")
                 return True
             else:
                 logger.info("O horário diverge")
-                logger.info("Entrada negada!")
                 return False
         else:
             logger.info("Evento não encontrado pelo API")

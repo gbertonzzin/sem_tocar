@@ -11,6 +11,9 @@ def main():
     doormanButton = Button(
         window, text="Doorman", bg="grey", command=lambda: doorman()
     ).pack()
+    setupButton = Button(
+        window, text="Setup", bg="grey", command=lambda: setup()
+    ).pack()
 
     window.mainloop()
 

@@ -12,13 +12,12 @@ import logging
 
 
 from datetime import date
-from os import mkdir
-from modules.calendar_handler import get_calendars, get_events
-from modules.JSON_handler import json_file_check
+from modules.calendar_handler import *
+from modules.JSON_handler import *
 from modules.webcam_handler import *
 from modules.QR_handler import *
 from modules.email_handler import *
-from modules.sem_parar_config import *
+from modules.sem_tocar_config import *
 
 
 logging.basicConfig(
@@ -27,14 +26,21 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
+
 
 def main():
     routine()
 
-
+def setup():
+    """
+    Creates the token files for the Gcal and Gmail API and the crypto key file for QR encryption
+    """
+    
+    generate_key()
+    
 def make_path(fname, *directories):
     return os.path.sep.join(list(directories) + [fname])
-
 
 def routine():
     """
@@ -45,7 +51,7 @@ def routine():
     Returns:
         Boolean?
     """
-    calendars = get_calendars()  # FLAT IS BETTER THAN NESTED
+    calendars = get_calendars() 
     if calendars:
         json.dump(calendars, open(make_path("calendars.json", "json"), "wt"))
         for calendar in calendars.values():
@@ -63,7 +69,10 @@ def process_calendar(calendar):
 
     events = get_events(f"{cal_id}@group.calendar.google.com", DAYS_TO_REQUEST)
     if events:
-        write_json(events, make_path(f"{cal_name}_all_events_new.json", "json"))
+        #write_json(events, make_path(f"{cal_name}_all_events_new.json", "json"))
+        with open(make_path(f"{cal_name}_all_events_new.json", "json"), "w") as file:
+            file.write(json.dumps(events, indent=4, sort_keys=True))
+            
         if file_OK:
             new_event = compare_json(
                 make_path(f"{cal_name}_all_events_new.json", "json"),
@@ -75,6 +84,8 @@ def process_calendar(calendar):
             else:
                 logger.info("Não há novos eventos!")
                 return False
+        else:
+            logger.info("Há problemas com o banco de dados! Tente novamente.")
     else:
         logger.info("Não há eventos!")
         return False
@@ -88,13 +99,19 @@ def process_new_events(calendar_id, event_id, events):
             if "attendees" in event:
                 notify_attendees(event)
             else:
-                logger.info("nao ha convidados para esse evento")
-                logger.info("imprimindo...")
-        else:
-            pass
+                logger.info("Não há convidados para esse evento!")
+                logger.info("Imprimindo...")
 
 
-def notify_attendees(event):
+def notify_attendees(event): #TODO: check if e-mail was sent and received succesfully
+    """
+    Sends the e-mail with the pertinent info and the QR code attached
+    PT: Envia o e-mail com as informações pertinentes e o QR code em anexo
+    Args:
+        event: Event object
+    Returns:
+        Boolean
+    """
     for attendee in event["attendees"]:
         logger.info(f"Convidado:{attendee['email']}")
         text_message = f'você tem um novo evento: {event["summary"]}'
@@ -103,14 +120,15 @@ def notify_attendees(event):
             attendee["email"],
             event["id"],
             text_message,
-            make_path(f"QR_{event_id}.png", "QR"),
+            make_path(f"QR_{event['id']}.png", "QR"),
         )
         send_message(USER_ID, message)
 
 
 def doorman():
     """
-    DOCSTRING PENDING  PT:
+    Checks for events happening in the current day and handles the webcam authentication through QR codes
+    PT: Checa os eventos acontecendo no dia atual e cuida da autenticação através de QR codes
 
     Args:
         None?
@@ -125,7 +143,10 @@ def doorman():
             cal_name = calendars[calendar]["summary"]
     today_events = get_today_events(f"{cal_id}@group.calendar.google.com")
     if today_events:
-        write_json(today_events, make_path(f"{cal_name}_today_events.json", "json"))
+        #write_json(today_events, make_path(f"{cal_name}_today_events.json", "json"))
+        with open(make_path(f"{cal_name}_today_events.json", "json"), "w") as file:
+            file.write(json.dumps(today_events, indent=4, sort_keys=True))
+        
     else:
         logger.info("Não há eventos hoje!")
         return False
@@ -135,6 +156,12 @@ def doorman():
         decrypted = decrypt_data(data)
         if decrypted:
             check_event(decrypted[0], decrypted[1], cal_name)
+            if check_event:
+                logger.info("Entrada permitida!")
+                return True
+            else:
+                logger.info("Entrada negada!")
+                return False
         else:
             return False
 

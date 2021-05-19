@@ -6,6 +6,8 @@ import os
 from cryptography.fernet import Fernet
 from itertools import zip_longest
 import qrcode
+from modules.sem_tocar_config import *
+
 
 # used for decoding, maybe use qrcode for this as well?
 from pyzbar.pyzbar import decode
@@ -14,9 +16,9 @@ from PIL import Image
 logger = logging.getLogger(__name__)
 
 
-if "ENCRYPT_KEY_FILE" not in os.environ:
-    raise KeyError("Environment variable ENCRYPT_KEY_FILE not defined!")
-KEY_FILE = os.environ["ENCRYPT_KEY_FILE"]
+#if "ENCRYPT_KEY_FILE" not in os.environ:
+#    raise KeyError("Environment variable ENCRYPT_KEY_FILE not defined!")
+#KEY_FILE = os.environ["ENCRYPT_KEY_FILE"]
 
 
 def generate_key():
@@ -27,7 +29,7 @@ def generate_key():
         None
     """
     key = Fernet.generate_key()
-    with open(KEY_FILE, "wb") as key_file:
+    with open("crypto.key", "wb") as key_file:
         key_file.write(key)
 
 
@@ -43,16 +45,16 @@ def encrypt_data(cal_id, eve_id):
     """
     logger.debug(f"encrypt_data - \n    cal_id: {cal_id}, eve_id: {eve_id}")
 
-    filler = ""  # CRYPTO_FILLER, not used
+    filler = CRYPTO_FILLER #not used
     jumbled = (
         "".join(i for j in zip_longest(cal_id, eve_id, fillvalue=filler) for i in j)
     )[::-1]
     logger.info(f"Embaralhado: {jumbled}")
-    key = open(KEY_FILE, "rb").read()
+    key = open("crypto.key", "rb").read()
     encoded_message = jumbled.encode()
     f = Fernet(key)
     encrypted = f.encrypt(encoded_message)
-    logger.info(encrypted)
+    logger.info(f"Encriptado: {encrypted}")
 
     return encrypted
 
@@ -108,7 +110,7 @@ def decrypt_data(input):
     logger.debug(f"decrypt_data() - \n    input: {input}")
 
     encoded_input = bytes(input, "utf-8")
-    key = open(KEY_FILE, "rb").read()
+    key = open("crypto.key", "rb").read()
     f = Fernet(key)
     decrypted = f.decrypt(encoded_input).decode()
 

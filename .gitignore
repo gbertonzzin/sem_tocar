@@ -1,8 +1,23 @@
-very_important_cal_file.pickle
-very_important_mail_file.pickle
-
-g*_credentials.json
-
+#sensitive stuff
+*.pickle
+*token.json
+credentials.json
 *.key
 
+#keep the folders (good idea?)
+json/*
+!json/.gitkeep
+QR/*
+!QR/.gitkeep
+img/*
+!img/.gitkeep
+
+#useless stuff?
 *.pyc
+*.pyo
+Lib/
+Include/
+.vscode/
+Scripts/
+share/
+pyenv.cfg

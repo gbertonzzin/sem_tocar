@@ -60,7 +60,7 @@ def compare_json(new_json, last_json):
     new_events = list(present_events.difference(last_events))
 
     if len(new_events) > 0:
-        logger.info("Novos eventos:", new_events)
+        logger.info(f"Novos eventos: {new_events}")
     else:
         logger.info("Não há novos eventos!")
     return new_events
