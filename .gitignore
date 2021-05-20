@@ -1,7 +1,7 @@
 #sensitive stuff
 *.pickle
 *token*
-credentials.json
+credentials*
 *.key
 
 #keep the folders (good idea?)
@@ -11,6 +11,8 @@ QR/*
 !QR/.gitkeep
 img/*
 !img/.gitkeep
+docx/
+!docx/.gitkeep
 
 #useless stuff?
 *.pyc

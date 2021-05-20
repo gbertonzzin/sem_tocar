@@ -1,6 +1,12 @@
 """Config file for the app, contains paths, variables and so such
 PT:Arquivo de config do APP, contém paths, variáveis, e afins
 """
+#Self-explanatory
+COMPANY_NAME = "Batata Baroa S//A"
+
+#Self-explanatory
+CONTACT_PHONE = "666 um tapa na oreia"
+
 #How many days into the future the event request gets
 DAYS_TO_REQUEST = 30
 
@@ -24,3 +30,6 @@ CRYPTO_FILLER = ""
 
 #Google credentials file
 GOOGLE_CREDS = "credentials.json"
+
+#Print invitation if there are no guests in a new event?
+PRINT_INVITE = False

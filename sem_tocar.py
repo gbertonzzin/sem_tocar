@@ -3,12 +3,13 @@ Main controler for the app
 PT:Controlador do app
 """
 import json
+import platform
 import coloredlogs, logging
 
-# TODO: multiple calendars, folders for each, etc.
-# TODO: config file
-# TODO: better GUI
-# TODO: printer work
+#TODO: multiple calendars, folders for each, etc.
+#TODO: config file
+#TODO: better GUI
+#TODO: printer work
 
 
 from datetime import date
@@ -139,10 +140,16 @@ def process_new_events(calendar_id, event_id, events):
                 notify_attendees(event)
             else:
                 logger.info("Não há convidados para esse evento!")
-                logger.info("Imprimindo...")
-                #TODO:the QR code along with the rest of the pertinent information
-                #Print on windows: http://timgolden.me.uk/python/win32_how_do_i/print.html
-                #Print on linux: https://pypi.org/project/pycups/
+                if PRINT_INVITE == True:
+                    logger.info("Imprimindo...")
+                    #invite = write_invitation(event, make_path(f"QR_{event_id}.png", COMPANY_NAME, "QR"))
+                    #op_sys = platform.system()
+                    #if op_sys == 'Windows':
+                    #   win_print_doc(invite)
+                    #elif op_sys == 'Linux':
+                    #   linux_print_doc(invite)
+                    #else:
+                    #   logger.warning("Não foi possível determinar o sistema operacional!")
 
 
 def notify_attendees(event): #TODO: check if e-mail was sent and received succesfully. Is it even possible?
