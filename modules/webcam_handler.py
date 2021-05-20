@@ -29,7 +29,7 @@ def decoder(image):
 
     for obj in barcode:
         qr_data = obj.data.decode("utf-8")
-        barcodeType = obj.type
+        #barcodeType = obj.type
         qr_logger(qr_data, image)
         time.sleep(3)
 

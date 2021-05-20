@@ -27,12 +27,14 @@ def authenticate(scope, token):
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            logger.info("Requerindo acesso ao usuário...")
+            logger.info("Solicitando acesso ao usuário...")
             if os.path.exists(google_credentials):
                 flow = InstalledAppFlow.from_client_secrets_file(google_credentials, scope)
                 creds = flow.run_local_server(port=0)   #FIX: If user closes the auth browser window, everything freezes
+                                                        #maybe add a timer?
             else:
                 logger.warning("Arquivo de credenciais 'credentials.json' não encontrado!")
+                return False
 
         with open(token, "wb") as token_file:
             logger.info(f"Criando token de acesso '{token}.json' para o escopo '{scope}'...")
@@ -46,7 +48,7 @@ def get_calendar_service():
     PT:Lida com autenticação e serviços do Gcalendar API
 
     Returns:
-        Gcalendar API service
+        GCal API service
     """
     logger.debug("get_calendar_service()")
     

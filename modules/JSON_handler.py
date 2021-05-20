@@ -34,8 +34,9 @@ def json_file_check(new_json, last_json):
             logger.info(f"{new_json} foi renomeado para {last_json}")
             return True
     else:
-        logger.warning(f"{new_json} não encontrado")
-        return False
+        no_new_json = f"{new_json} não encontrado"
+        logger.warning(no_new_json)
+        return no_new_json
 
 
 def compare_json(new_json, last_json):

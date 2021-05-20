@@ -81,7 +81,9 @@ def routine():
 
 
 def process_calendar(calendar):
-    """DOCSTRING PENDING
+    """
+    Coordinates most of the calendar action, checks files, makes requests etc.
+    PT: Coordena a maior parte das ações de calendário, checa arquivos, faz requests etc.
     
     """
     logger.debug("process_calendar()")
@@ -98,7 +100,7 @@ def process_calendar(calendar):
         with open(make_path(f"{cal_name}_all_events_new.json", "json"), "w") as file:
             file.write(json.dumps(events, indent=4, sort_keys=True))
             
-        if file_OK:
+        if file_OK == True:
             new_event = compare_json(
                 make_path(f"{cal_name}_all_events_new.json", "json"),
                 make_path(f"{cal_name}_all_events_{date.today()}.json", "json"),
@@ -110,15 +112,22 @@ def process_calendar(calendar):
                 logger.info("Não há novos eventos!")
                 return False
         else:
-            logger.warning("Há problemas com o banco de dados! Tente novamente.")
+            logger.warning(f"{file_OK}    Tente novamente.")
     else:
         logger.info("Não há eventos!")
         return False
+#FIX: if there is no '_all_events_new.json', a new one will be created containing the already existing events.
+#This is a problem because if the file gets deleted or corrupted before a new event is notified, then this event
+#   will never get notified since comparing the last and new requests will yeld no new events 
+#   (they are the same, the last is just the new one renamed. Maybe change this?)
+#Not sure how to tackle this, since we also do not want events getting notified twice (well, beter twice than never?)
+#Maybe a separate database with all the alredy-notified events? Pain in the ass.
 
 
 def process_new_events(calendar_id, event_id, events):
-    """DOCSTRING PENDING
-    
+    """
+    Coordinates QRs and notifying for new events through e-mail
+    PT: Coordena QRs e notificação dos novos eventos através de e-mail
     """
     logger.debug("process_new_events()")
     
@@ -136,7 +145,7 @@ def process_new_events(calendar_id, event_id, events):
                 #Print on linux: https://pypi.org/project/pycups/
 
 
-def notify_attendees(event): #TODO: check if e-mail was sent and received succesfully
+def notify_attendees(event): #TODO: check if e-mail was sent and received succesfully. Is it even possible?
     """
     Sends the e-mail with the pertinent info and the QR code attached
     PT: Envia o e-mail com as informações pertinentes e o QR code em anexo
@@ -188,16 +197,16 @@ def doorman():
     data = webcam_handler()
     if data:
         decrypted = decrypt_data(data)
-        if decrypted:
-            check_event(decrypted[0], decrypted[1], cal_name)
-            if check_event:
-                logger.critical("Entrada permitida!")
-                return True
-            else:
-                logger.critical("Entrada negada!")
-                return False
-        else:
-            return False
+    else:
+        return False
+    if decrypted:
+        auth_entrance = check_event(decrypted[0], decrypted[1], cal_name)
+    if auth_entrance:
+        logger.critical("Entrada permitida!")
+        return True
+    else:
+        logger.critical("Entrada negada!")
+        return False
 
 
 if __name__ == "__main__":
