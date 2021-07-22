@@ -5,6 +5,7 @@ PT:Controlador do app
 import json
 import platform
 import coloredlogs, logging
+import threading
 
 #TODO: multiple calendars, folders for each, etc.
 #TODO: config file
@@ -32,7 +33,12 @@ logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
 
 
 def main():
-    routine()
+    routine_thread = threading.Thread(target=routine, daemon=True)
+    doorman_thread = threading.Thread(target=doorman)
+  
+    routine_thread.start()
+    time.sleep(5)
+    doorman_thread.start()
 
 def setup():
     """
@@ -72,6 +78,16 @@ def routine():
         Boolean?
     """
     logger.debug("routine()")
+    while True:
+        request_calendars()
+        time.sleep(ROUTINE_FREQ)
+
+  
+    
+def request_calendars():
+    """
+    
+    """
     
     calendars = get_calendars() 
     if calendars:

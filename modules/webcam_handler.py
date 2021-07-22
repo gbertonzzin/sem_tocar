@@ -68,7 +68,7 @@ def webcam_handler():
     """
     logger.debug("webcam_handler()")
 
-    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    cap = cv2.VideoCapture(0)
     while True:
         ret, frame = cap.read()
         cv2.imshow("Image", frame)

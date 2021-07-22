@@ -33,3 +33,6 @@ GOOGLE_CREDS = "credentials.json"
 
 #Print invitation if there are no guests in a new event?
 PRINT_INVITE = False
+
+#GPIO 5v pin for the door magnet lock relay
+RELAY_PIN = 2
