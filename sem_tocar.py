@@ -20,6 +20,7 @@ from modules.webcam_handler import *
 from modules.QR_handler import *
 from modules.email_handler import *
 from modules.sem_tocar_config import *
+from modules.door_handler import *
 
 
 logging.basicConfig(
@@ -64,8 +65,7 @@ def setup():
         get_gmail_service()
 
 
-def make_path(fname, *directories):
-    return os.path.sep.join(list(directories) + [fname])
+
 
 
 def routine():
@@ -226,6 +226,7 @@ def doorman():
         auth_entrance = check_event(decrypted[0], decrypted[1], cal_name)
     if auth_entrance:
         logger.critical("Entrada permitida!")
+        unlock()
         return True
     else:
         logger.critical("Entrada negada!")

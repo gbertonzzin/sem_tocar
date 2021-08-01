@@ -1,6 +1,7 @@
 """Handles email formatting, creation and sending
 PT:Lida com a formatação, criação e envio de e-mails
 """
+from calendar_handler import *
 from __future__ import print_function
 import logging
 import os.path
@@ -122,6 +123,28 @@ def send_message(user_id, message):
     except HttpError as error:
         logger.error("Ocorreu um erro:: %s" % error, exc_info=True)
 
+
+def notify_attendees(event): #TODO: check if e-mail was sent and received succesfully. Is it even possible?
+    """
+    Sends the e-mail with the pertinent info and the QR code attached
+    PT: Envia o e-mail com as informações pertinentes e o QR code em anexo
+    Args:
+        event: Event object
+    Returns:
+        Boolean
+    """
+    logger.debug("notify_attendees()")
+    for attendee in event["attendees"]:
+        logger.info(f"Convidado:{attendee['email']}")
+        text_message = f'você tem um novo evento: {event["summary"]}'
+        message = create_message_with_attachment(
+            USER_ID,
+            attendee["email"],
+            event["id"],
+            text_message,
+            make_path(f"QR_{event['id']}.png", "QR"),
+        )
+        send_message(USER_ID, message)
 
 def format_text():
     pass

@@ -5,9 +5,11 @@ import logging
 import cv2
 import time
 import datetime
+import time as t
 import argparse
 from pyzbar.pyzbar import decode, ZBarSymbol
 from modules.sem_tocar_config import *
+from modules.calendar_handler import *
 
 logger = logging.getLogger(__name__)
 
@@ -31,10 +33,13 @@ def decoder(image):
         qr_data = obj.data.decode("utf-8")
         #barcodeType = obj.type
         qr_logger(qr_data, image)
-        time.sleep(3)
+        t.sleep(3)
 
         if len(qr_data) == 164:
             return qr_data
+        else:
+            logger.warning("Dados do QR inválidos!")
+            return False
 
 
 def qr_logger(data, image):     #TODO
@@ -50,15 +55,37 @@ def qr_logger(data, image):     #TODO
     """
     logger.debug("qr_logger()")
 
-    timestampStr = datetime.datetime.now().strftime("%d%m%Y_%H%M%S")
+    timestampStr = datetime.now().strftime("%d%m%Y_%H%M%S")
 
     if SAVE_WEBCAM == True:
-        cv2.imwrite(f"img\\img{timestampStr}.png", image)
+        cv2.imwrite(make_path("{timestampStr}.png", "img"), image)
         
     #TODO: log webcam info into JSON for security purposes
 
+def webcam_handler_alternative(): 
+    
+    cap = cv2.VideoCapture(0)
 
-
+    
+    detector = cv2.QRCodeDetector()
+    
+    while True:
+        ret, frame = cap.read()
+        cv2.imshow("Image", frame)
+        data, vertices_array, _ = detector.detectAndDecode(frame)
+        print("BATATA BAROA", data)
+        if vertices_array is not None:
+            if data:
+                #cv2.destroyAllWindows()
+                #del cap
+                print(data)
+                #return data
+        code = cv2.waitKey(10)
+        if code == ord("q"):
+            cv2.destroyAllWindows()
+            del cap
+            break
+    
 def webcam_handler():
     """Turns the camera on and sends each frame to the decoder
     PT:Liga a câmera e envia cada frame para o decoder

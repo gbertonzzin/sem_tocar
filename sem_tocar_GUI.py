@@ -9,6 +9,9 @@ def gui():
     routineButton = Button(
         window, text="Routine", bg="grey", command=lambda: main()
     ).pack()
+    refreshButton = Button(
+        window, text="Refresh", bg="grey", command=lambda: request_calendars()
+    ).pack()
     doormanButton = Button(
         window, text="Doorman", bg="grey", command=lambda: doorman()
     ).pack()
@@ -16,7 +19,7 @@ def gui():
         window, text="Setup", bg="grey", command=lambda: setup()
     ).pack()
     doorButton = Button(
-        window, text="OPEN DOOR", bg="grey", command=lambda: unlock()
+        window, text="Open maglock", bg="grey", command=lambda: unlock()
     ).pack()
 
     window.mainloop()

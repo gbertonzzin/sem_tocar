@@ -1,15 +1,20 @@
 from modules.sem_tocar_config import *
-from gpiozero import OutputDevice
+import RPi.GPIO as GPIO
 import time
 
 
 def unlock():
-    maglock = OutputDevice(2, initial_value=False)
-    maglock.on()
-    print("MAGLOCK ON")
-    time.sleep(5)
-    maglock.off()
-    print("MAGLOCK OFF")
-
+    GPIO.setmode(GPIO.BOARD)
+    mode = GPIO.getmode()
+    print(mode)
+    GPIO.setup(16, GPIO.OUT, initial=GPIO.LOW)
     
+    GPIO.output(16, True)
+    print(GPIO.input(16))
     
+    time.sleep(3)
+    
+    GPIO.output(16, False)
+    print(GPIO.input(16))    
+    
+    GPIO.cleanup()

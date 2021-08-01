@@ -82,8 +82,8 @@ def check_event(cal_id, event_id, cal_name):
     """
     logger.debug("check_event()")
 
-    #with open(make_path(f"{cal_name}_today_events.json", "json")) as f:
-    with open(os.path.sep.join(["json"] + [f"{cal_name}_today_events.json"])) as f:
+    with open(make_path(f"{cal_name}_today_events.json", "json")) as f:
+    #with open(os.path.sep.join(["json"] + [f"{cal_name}_today_events.json"])) as f:
         today_data = json.load(f)
     for event_object in today_data.values():
         if event_id == event_object["id"][0:26]:#Watch out for recursive events! Only the first 26 chars matter now
@@ -124,3 +124,6 @@ def check_event(cal_id, event_id, cal_name):
 
 def parse_time_object(tobject):
     return pendulum.parse(tobject["dateTime"]).int_timestamp #.set(tz=pendulum.tz.timezone(tobject["timeZone"]))
+
+def make_path(fname, *directories):
+    return os.path.sep.join(list(directories) + [fname])

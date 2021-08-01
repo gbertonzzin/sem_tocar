@@ -2,7 +2,7 @@
 PT:Lida com a criptografia, criação e decodificação de QR codes
 """
 import logging
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 from itertools import zip_longest
 import qrcode
 from modules.sem_tocar_config import *
@@ -111,11 +111,15 @@ def decrypt_data(input):
     logger.debug("decrypt_data()")
 
     encoded_input = bytes(input, "utf-8")
+    
     key = open("crypto.key", "rb").read()
     f = Fernet(key)
-    decrypted = f.decrypt(encoded_input).decode()
-
-    # .replace("$","")#for use with CRYPTO_FILLER
+    try:
+        decrypted = f.decrypt(encoded_input).decode()
+    except InvalidToken:
+        logger.critical("Não foi possível decriptografar o QR: chave de criptografia inválida.")
+        return False
+    # .replace("CRYPTO_FILLER","")#for use with CRYPTO_FILLER
     unjumbled_cal_id = (decrypted[1::2])[::-1]
     unjumbled_eve_id = (decrypted[0::2])[::-1]  # .replace("$","")
     logger.info(f"cal ID: {unjumbled_cal_id} | event ID: {unjumbled_eve_id}")
