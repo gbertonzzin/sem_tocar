@@ -1,4 +1,5 @@
 from modules.door_handler import unlock
+from modules.whatsapp_handler import *
 from sem_tocar import *
 from tkinter import *
 
@@ -20,6 +21,9 @@ def gui():
     ).pack()
     doorButton = Button(
         window, text="Open maglock", bg="grey", command=lambda: unlock()
+    ).pack()
+    wappButton = Button(
+        window, text="Whatsapp", bg="grey", command=lambda: test_whatsapp()
     ).pack()
 
     window.mainloop()

@@ -4,6 +4,8 @@ PT:Lida com pedidos do Gcalendar API
 
 from datetime import date, datetime, timedelta, time, timezone
 from modules.services import get_calendar_service
+from modules.toolbox import *
+
 import os
 
 import pendulum
@@ -120,10 +122,3 @@ def check_event(cal_id, event_id, cal_name):
             logger.debug(f"{event_id} nao esta no calendario!")
             print(event_id, event_object["id"][0:26])
             
-
-
-def parse_time_object(tobject):
-    return pendulum.parse(tobject["dateTime"]).int_timestamp #.set(tz=pendulum.tz.timezone(tobject["timeZone"]))
-
-def make_path(fname, *directories):
-    return os.path.sep.join(list(directories) + [fname])

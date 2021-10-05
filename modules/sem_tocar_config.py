@@ -2,7 +2,7 @@
 PT:Arquivo de config do APP, contém paths, variáveis, e afins
 """
 #Self-explanatory
-COMPANY_NAME = "Batata Baroa S//A"
+COMPANY_NAME = "Batata Baroa S/A"
 
 #Self-explanatory
 CONTACT_PHONE = "666 um tapa na oreia"

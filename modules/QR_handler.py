@@ -1,7 +1,9 @@
 """Handles QR code creation, encryption and decoding
 PT:Lida com a criptografia, criação e decodificação de QR codes
 """
+import os
 import logging
+import shutil
 from cryptography.fernet import Fernet, InvalidToken
 from itertools import zip_longest
 import qrcode
@@ -28,11 +30,14 @@ def generate_key():
         None
     """
     logger.debug("generate_key()")
-    
     key = Fernet.generate_key()
     with open("crypto.key", "wb") as key_file:
         key_file.write(key)
-
+    logger.info("Criado arquivo de chave criptográfica.")
+    shutil.copy("crypto.key", "crypto_backup.key")
+    logger.info("Criado backup da chave criptográfica.")
+    if not os.path.isfile("crypto.key"):
+        logger.error("Algo deu errado na criação do arquivo de chave criptográfica!")
 
 def encrypt_data(cal_id, eve_id):
     """Jumbles and encrypts the args given

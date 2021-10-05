@@ -45,7 +45,7 @@ def authenticate(scope, token):
 
 def get_calendar_service():
     """Provides Gcalendar API auth and service
-    PT:Lida com autenticação e serviços do Gcalendar API
+    PT:Lida com autenticação e serviços do GCalendar API
 
     Returns:
         GCal API service

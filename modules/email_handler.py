@@ -1,8 +1,8 @@
 """Handles email formatting, creation and sending
 PT:Lida com a formatação, criação e envio de e-mails
 """
-from calendar_handler import *
-from __future__ import print_function
+from modules.calendar_handler import *
+#from __future__ import print_function
 import logging
 import os.path
 from googleapiclient.discovery import build
@@ -16,14 +16,15 @@ from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from googleapiclient.errors import HttpError
-from modules.services import get_gmail_service
+from modules.services import *
+from modules.sem_tocar_config import *
 
 logger = logging.getLogger(__name__)
 
 
 def create_message(sender, to, subject, message_text):
-    """Create a message for an email
-    PT:Cria a mensagem para um email
+    """Creates a message for email
+    PT:Cria a mensagem para email
 
     Args:
     sender: Email address of the sender.
@@ -46,7 +47,7 @@ def create_message(sender, to, subject, message_text):
 
 
 def create_message_with_attachment(sender, to, subject, message_text, file):
-    """Create a message for an email
+    """Create a message for email with attachment
         PT:
 
     Args:
@@ -136,7 +137,7 @@ def notify_attendees(event): #TODO: check if e-mail was sent and received succes
     logger.debug("notify_attendees()")
     for attendee in event["attendees"]:
         logger.info(f"Convidado:{attendee['email']}")
-        text_message = f'você tem um novo evento: {event["summary"]}'
+        text_message = f'Você tem um novo evento: {event["summary"]}'
         message = create_message_with_attachment(
             USER_ID,
             attendee["email"],
