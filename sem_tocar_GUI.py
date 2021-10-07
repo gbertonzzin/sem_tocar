@@ -8,7 +8,7 @@ def gui():
     window = Tk()
     window.geometry("200x150")
     routineButton = Button(
-        window, text="Routine", bg="grey", command=lambda: main()
+        window, text="Routine", bg="grey", command=lambda: routine()
     ).pack()
     refreshButton = Button(
         window, text="Refresh", bg="grey", command=lambda: request_calendars()

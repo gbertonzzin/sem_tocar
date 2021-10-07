@@ -1,20 +1,20 @@
 from modules.sem_tocar_config import *
 import RPi.GPIO as GPIO
-import time
+from time import sleep
 
 
 def unlock():
     GPIO.setmode(GPIO.BOARD)
     mode = GPIO.getmode()
-    print(mode)
-    GPIO.setup(16, GPIO.OUT, initial=GPIO.LOW)
+ 
+    GPIO.setup(RELAY_PIN, GPIO.OUT, initial=GPIO.LOW)
     
-    GPIO.output(16, True)
-    print(GPIO.input(16))
+    GPIO.output(RELAY_PIN, True)
+    #print(GPIO.input(8))
     
-    time.sleep(3)
+    sleep(OPEN_DOOR)
     
-    GPIO.output(16, False)
-    print(GPIO.input(16))    
+    GPIO.output(RELAY_PIN, False)
+    #print(GPIO.input(8))    
     
     GPIO.cleanup()

@@ -4,13 +4,16 @@ A place for useful functions used all over the app
 #from datetime import datetime
 import pendulum
 import os
+from modules.sem_tocar_config import *
 
 def format_human_date(event_start):
     
     pendulum.set_locale('pt_br')
 
     timestamp = parse_time_object(event_start)
-    format_date = pendulum.from_timestamp(timestamp)
+    print(timestamp)
+    format_date = pendulum.from_timestamp(timestamp, tz=TIMEZONE)
+    print(format_date)
     weekday = format_date.format('dddd', locale='pt_br')
     day = format_date.format('DD', locale='pt_br')
     month = format_date.format('MMMM', locale='pt_br')

@@ -78,9 +78,9 @@ def produce_QR(qrinput, outFile):
     """
     logger.debug(f"produce_QR()")
 
-    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr = qrcode.QRCode(version=9, box_size=10, border=4)
     qr.add_data(qrinput)
-    qr.make(fit=True)
+    qr.make(fit=False)
     img = qr.make_image(fill="black", back_color="white")
     img.save(outFile)
 

@@ -4,14 +4,15 @@ import os
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+from modules.sem_tocar_config import *
 #from google.oauth2.credentials import Credentials
 
 logger = logging.getLogger(__name__)
 
 #if "GOOGLE_CREDENTIALS_FILE" not in os.environ:
 #    raise KeyError("Environment variable GOOGLE_CREDENTIALS_FILE not defined!")
-#google_credentials = os.environ["GOOGLE_CREDENTIALS_FILE"]
-google_credentials = "credentials.json"
+#GOOGLE_CREDS = os.environ["GOOGLE_CREDENTIALS_FILE"]
+
 
 def authenticate(scope, token):
     logger.debug("authenticate()")
@@ -20,7 +21,7 @@ def authenticate(scope, token):
     if os.path.exists(token):
         with open(token, "rb") as token_file:
             creds = pickle.load(token_file)   
-            logger.info(f"Utilizando o token {token} para o escopo {scope}...")     
+            #logger.info(f"Utilizando o token {token} para o escopo {scope}...")     
 
     if not creds or not creds.valid:
         logger.warning("Credenciais inválidas or expiradas!")
@@ -28,12 +29,12 @@ def authenticate(scope, token):
             creds.refresh(Request())
         else:
             logger.info("Solicitando acesso ao usuário...")
-            if os.path.exists(google_credentials):
-                flow = InstalledAppFlow.from_client_secrets_file(google_credentials, scope)
+            if os.path.exists(GOOGLE_CREDS):
+                flow = InstalledAppFlow.from_client_secrets_file(GOOGLE_CREDS, scope)
                 creds = flow.run_local_server(port=0)   #FIX: If user closes the auth browser window, everything freezes
                                                         #maybe add a timer?
             else:
-                logger.warning("Arquivo de credenciais 'credentials.json' não encontrado!")
+                logger.warning(f"Arquivo de credenciais {GOOGLE_CREDS} não encontrado!")
                 return False
 
         with open(token, "wb") as token_file:

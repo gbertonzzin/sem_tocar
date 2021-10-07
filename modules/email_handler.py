@@ -22,32 +22,8 @@ from modules.sem_tocar_config import *
 logger = logging.getLogger(__name__)
 
 
-def create_message(sender, to, subject, message_text):
-    """Creates a message for email
-    PT:Cria a mensagem para email
-
-    Args:
-    sender: Email address of the sender.
-    to: Email address of the receiver.
-    subject: The subject of the email message.
-    message_text: The text of the email message.
-
-    Returns:
-    An object containing a base64url encoded email object.
-    """
-    message = MIMEText(message_text)
-    message["to"] = to
-    message["from"] = sender
-    message["subject"] = subject
-    raw = base64.urlsafe_b64encode(message.as_bytes())
-    raw = raw.decode()
-    body = {"raw": raw}
-
-    return body
-
-
 def create_message_with_attachment(sender, to, subject, message_text, file):
-    """Create a message for email with attachment
+    """Creates a message for email with an attachment
         PT:
 
     Args:
@@ -137,7 +113,7 @@ def notify_attendees(event): #TODO: check if e-mail was sent and received succes
     logger.debug("notify_attendees()")
     for attendee in event["attendees"]:
         logger.info(f"Convidado:{attendee['email']}")
-        text_message = f'Você tem um novo evento: {event["summary"]}'
+        text_message = f"Você tem um novo evento: {event['summary']} em {COMPANY_NAME}, {format_human_date(event['start'])}, para entrar apresente o código QR em anexo abaixo na portaria e em caso de duvidas favor contactar no telefone {CONTACT_PHONE}."
         message = create_message_with_attachment(
             USER_ID,
             attendee["email"],
@@ -147,5 +123,3 @@ def notify_attendees(event): #TODO: check if e-mail was sent and received succes
         )
         send_message(USER_ID, message)
 
-def format_text():
-    pass

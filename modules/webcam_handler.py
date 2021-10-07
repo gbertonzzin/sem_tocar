@@ -1,12 +1,12 @@
 """Handles webcam work
 PT:Lida com a webcam
 """
+import argparse
+import time
 import logging
 import cv2
-import time
 import datetime
 import time as t
-import argparse
 from pyzbar.pyzbar import decode, ZBarSymbol
 from modules.sem_tocar_config import *
 from modules.calendar_handler import *

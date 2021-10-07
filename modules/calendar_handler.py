@@ -1,12 +1,12 @@
 """Handles Gcalendar API requests
 PT:Lida com pedidos do Gcalendar API
 """
+#import os
 
 from datetime import date, datetime, timedelta, time, timezone
 from modules.services import get_calendar_service
 from modules.toolbox import *
 
-import os
 
 import pendulum
 import json
@@ -105,9 +105,9 @@ def check_event(cal_id, event_id, cal_name):
                 now = pendulum.now().int_timestamp
                 start = parse_time_object(event["start"])
                 end = parse_time_object(event["end"])
-                print(now)
-                print(start)
-                print(end)
+                #print(now)
+                #print(start)
+                #print(end)
 
                 if start <= now < end:
                     logger.info("O horário confere")
@@ -119,6 +119,6 @@ def check_event(cal_id, event_id, cal_name):
                 logger.info("Evento não encontrado pelo API")
                 
         else:
-            logger.debug(f"{event_id} nao esta no calendario!")
-            print(event_id, event_object["id"][0:26])
+            logger.info(f"{event_id} nao esta no calendario!")
+            #print(event_id, event_object["id"][0:26])
             

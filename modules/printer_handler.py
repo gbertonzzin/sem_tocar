@@ -4,6 +4,7 @@ Handles invite creating and printing
 
 """
 
+import os
 import win32api
 import win32print
 from docx import Document
@@ -53,4 +54,4 @@ def linux_print_doc(file): #TODO
     """
     Prints a file in a Linux environment
     """
-    pass
+    os.system("lpr -P {DEFAULT_PRINTER} {file}") #Yet untested

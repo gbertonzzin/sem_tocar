@@ -2,7 +2,8 @@
 PT:Lida com arquivos JSON
 """
 import logging
-import os, json
+import os, json, shutil
+from modules.toolbox import *
 
 logger = logging.getLogger(__name__)
 
@@ -20,8 +21,8 @@ def json_file_check(new_json, last_json):
     """
     logger.debug("json_file_check()" )
 
-    if os.path.isfile(new_json):
-        logger.info(f"{new_json} existe! \n    Prosseguindo...")
+    if os.path.isfile(new_json): 
+        logger.info(f"{new_json} existe! \n    Prosseguindo...")    
         if os.path.isfile(last_json):
             logger.info(f"{last_json} existe! \n    Prosseguindo...")
             os.remove(last_json)
@@ -34,9 +35,11 @@ def json_file_check(new_json, last_json):
             logger.info(f"{new_json} foi renomeado para {last_json}")
             return True
     else:
-        no_new_json = f"{new_json} não encontrado"
-        logger.warning(no_new_json)
-        return no_new_json
+        logger.warning(f"{new_json} não encontrado!")
+        #logger.info("Criado arquivo-espantalho em seu lugar.")
+        #shutil.copy2(make_path("default.json", "json"), new_json)
+        return False
+
 
 
 def compare_json(new_json, last_json):
@@ -61,6 +64,7 @@ def compare_json(new_json, last_json):
 
     if len(new_events) > 0:
         logger.info(f"Novos eventos: {new_events}")
+        return new_events
     else:
-        logger.info("Não há novos eventos!")
-    return new_events
+        #logger.info("Não há novos eventos!")
+        return False

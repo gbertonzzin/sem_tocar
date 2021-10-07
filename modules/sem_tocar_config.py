@@ -13,7 +13,7 @@ DAYS_TO_REQUEST = 30
 #Google user (e-mail or ID)
 USER_ID = "gbertonzzin@gmail.com"
 
-#How frequently the routine requests shall be performed
+#How frequently the routine requests shall be performed, IN SECONDS
 ROUTINE_FREQ = 30
 
 #Save webcam image when QR code is shown?
@@ -34,5 +34,11 @@ GOOGLE_CREDS = "credentials.json"
 #Print invitation if there are no guests in a new event?
 PRINT_INVITE = False
 
-#GPIO 5v pin for the door magnet lock relay
-RELAY_PIN = 2
+#GPIO pin for the door magnet lock relay
+RELAY_PIN = 8
+
+#Current timezone, according to pendulum.timezones list
+TIMEZONE = 'Brazil/East'
+
+#How many seconds shall the door remain open
+OPEN_DOOR = 3

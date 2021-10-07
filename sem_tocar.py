@@ -8,11 +8,7 @@ import coloredlogs, logging
 import threading
 import shutil
 
-#TODO: multiple calendars, folders for each, etc.
-#TODO: config file
-#TODO: better GUI
-#TODO: printer work
-
+from time import sleep
 from datetime import date
 from modules.calendar_handler import *
 from modules.JSON_handler import *
@@ -26,7 +22,7 @@ from modules.sms_handler import *
 from modules.toolbox import *
 
 logging.basicConfig(
-    filename=f"Log_{date.today()}.txt",
+    filename=f"logs//Log_{date.today()}.txt",
     level=logging.INFO, 
     format="%(asctime)s - %(levelname)s - %(name)s - %(message)s"
 )
@@ -42,7 +38,7 @@ def main():
     doorman_thread = threading.Thread(target=doorman)
   
     routine_thread.start()
-    time.sleep(5)
+    sleep(5)
     doorman_thread.start()
 
 def setup():
@@ -77,9 +73,17 @@ def setup():
         logger.warning("O token de acesso ao GMail não foi encontrado!")
         logger.info("Autenticando o Gmail API...")
         get_gmail_service()
+        
 
-
-
+def sentry_box():
+    try:
+        door_man = doorman()
+        if door_man == True:
+            doorman()
+        else:
+            pass
+    except KeyboardInterrupt:
+        pass
 
 
 def routine():
@@ -92,14 +96,20 @@ def routine():
         Boolean?
     """
     logger.debug("routine()")
-    while True:
-        request_calendars()
-        time.sleep(ROUTINE_FREQ)
+    
+    try:
+        while True:
+            request_calendars()
+            sleep(ROUTINE_FREQ)
+    except KeyboardInterrupt:
+        pass
+        
 
   
     
 def request_calendars():
     """
+    Requests all user calendars and hands the ones actively selected over to be processed
     
     """
     
@@ -121,33 +131,38 @@ def process_calendar(calendar):
     
     cal_id = calendar["id"][0:26]
     cal_name = calendar["summary"]
-    logger.info(f"Processando calendario '{cal_name}'")
+    
     file_OK = json_file_check(
         make_path(f"{cal_name}_all_events_new.json", "json"),
         make_path(f"{cal_name}_all_events_{date.today()}.json", "json"),
-    )
+        )
     
     events = get_events(f"{cal_id}@group.calendar.google.com", DAYS_TO_REQUEST)
+    
     if events:
         with open(make_path(f"{cal_name}_all_events_new.json", "json"), "w") as file:
             file.write(json.dumps(events, indent=4, sort_keys=True))
-            
-        if file_OK == True:
-            new_event = compare_json(
-                make_path(f"{cal_name}_all_events_new.json", "json"),
-                make_path(f"{cal_name}_all_events_{date.today()}.json", "json"),
-            )
-            if new_event:
-                for event_id in new_event:
-                    process_new_events(cal_id, event_id, events)
-            else:
-                logger.info("Não há novos eventos!")
-                return False
-        else:
-            logger.warning(f"{file_OK}    Tente novamente.")
     else:
         logger.info("Não há eventos!")
-        return False
+    
+    if file_OK == True:
+        
+        
+        new_event = compare_json(
+            make_path(f"{cal_name}_all_events_new.json", "json"),
+            make_path(f"{cal_name}_all_events_{date.today()}.json", "json"),
+        )
+            
+        if new_event:
+            for event_id in new_event:
+                process_new_events(cal_id, event_id, events)
+        else:
+            logger.info("Não há novos eventos!")
+            return False
+    else:
+        logger.warning(f"Ocorreu um erro. Tentando novamente em {ROUTINE_FREQ} segundos.")
+        logger.warning("AVISO: Se houverem eventos no calendário, não serão considerados como novos!")
+    
 #FIX: if there is no '_all_events_new.json', a new one will be created containing the already existing events.
 #This is a problem because if the file gets deleted or corrupted before a new event is notified, then this event
 #   will never get notified since comparing the last and new requests will yeld no new events 
@@ -215,17 +230,19 @@ def doorman():
         decrypted = decrypt_data(data)
     else:
         return False
+        
     if decrypted:
         auth_entrance = check_event(decrypted[0], decrypted[1], cal_name)
     else:
         return False
+    
     if auth_entrance:
         logger.critical("Entrada permitida!")
         unlock()
         return True
     else:
         logger.critical("Entrada negada!")
-        return False
+        return True
 
 
 if __name__ == "__main__":
