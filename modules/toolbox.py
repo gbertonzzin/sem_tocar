@@ -26,7 +26,7 @@ def format_human_date(event_start):
     return human_date
     
 
-def parse_time_object(tobject):
+def parse_time_object(tobject): #Takes a datetime and gives the integer timestampo (epoch)
     return pendulum.parse(tobject["dateTime"]).int_timestamp #.set(tz=pendulum.tz.timezone(tobject["timeZone"]))
 
 def make_path(fname, *directories):

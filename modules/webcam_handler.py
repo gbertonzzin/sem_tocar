@@ -34,9 +34,10 @@ def decoder(image):
         #barcodeType = obj.type
         qr_logger(qr_data, image)
         t.sleep(3)
-
-        if len(qr_data) == 164:
-            return qr_data
+        if ENCRYPTION == True and len(qr_data) == 164:
+                return qr_data
+        elif ENCRYPTION == False and len(qr_data) == 52:
+                return qr_data
         else:
             logger.warning("Dados do QR inválidos!")
             return False

@@ -3,7 +3,6 @@ Main controler for the app
 PT:Controlador do app
 """
 import json
-import platform
 import coloredlogs, logging
 import threading
 import shutil
@@ -21,11 +20,9 @@ from modules.whatsapp_handler import *
 from modules.sms_handler import *
 from modules.toolbox import *
 
-logging.basicConfig(
-    filename=f"logs//Log_{date.today()}.txt",
-    level=logging.INFO, 
-    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s"
-)
+logging.basicConfig(filename=f"logs//Log_{date.today()}.txt", 
+                    level=logging.INFO, 
+                    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s")
 coloredlogs.install(level='DEBUG')
 
 logger = logging.getLogger(__name__)
@@ -34,31 +31,31 @@ logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
 
 
 def main():
-    routine_thread = threading.Thread(target=routine, daemon=True)
-    doorman_thread = threading.Thread(target=doorman)
+    routine_thread = threading.Thread(target=routine, daemon=False)
+    #doorman_thread = threading.Thread(target=sentry_box)
   
     routine_thread.start()
-    sleep(5)
-    doorman_thread.start()
+    #sleep(5)
+    #doorman_thread.start()
 
 def setup():
     """
     Creates the token files for the Gcal and Gmail API and the crypto key file for QR encryption
     """
     logger.info("Verificando arquivos essenciais...")
-    
-    if os.path.isfile("crypto.key"):
-        logger.info("O arquivo de chave de criptografia já existe!")
-    else:
-        logger.warning("Arquivo de chave de criptografia não encontrado.")
-        if os.path.isfile("crypto_backup.key"):
-            logger.info("Encontrado arquivo de backup da chave de criptografia.")
-            logger.info("Restaurando backup...")
-            shutil.copy("crypto_backup.key", "crypto.key")
+    if ENCRYPTION == True :
+        if os.path.isfile("crypto.key"):
+            logger.info("O arquivo de chave de criptografia já existe!")
         else:
-            logger.warning("Não encontrado arquivo de backup da chave de criptografia.")
-            logger.info("Gerando chave de criptografia 'crypto.key'...")
-            generate_key()
+            logger.warning("Arquivo de chave de criptografia não encontrado.")
+            if os.path.isfile("crypto_backup.key"):
+                logger.info("Encontrado arquivo de backup da chave de criptografia.")
+                logger.info("Restaurando backup...")
+                shutil.copy("crypto_backup.key", "crypto.key")
+            else:
+                logger.warning("Não encontrado arquivo de backup da chave de criptografia.")
+                logger.info("Gerando chave de criptografia 'crypto.key'...")
+                generate_key()
         
     if os.path.isfile("gcal_token"):
         logger.info("O token de acesso ao GCalendar já existe!")
@@ -77,11 +74,8 @@ def setup():
 
 def sentry_box():
     try:
-        door_man = doorman()
-        if door_man == True:
+        while True:
             doorman()
-        else:
-            pass
     except KeyboardInterrupt:
         pass
 
@@ -112,12 +106,13 @@ def request_calendars():
     Requests all user calendars and hands the ones actively selected over to be processed
     
     """
-    
+    logger.debug("request_calendars()")
     calendars = get_calendars() 
     if calendars:
         json.dump(calendars, open(make_path("calendars.json", "json"), "wt"))
         for calendar in calendars.values():
             if "selected" in calendar:
+                get_today_events(calendar["id"][0:26])
                 process_calendar(calendar)
 
 
@@ -131,6 +126,7 @@ def process_calendar(calendar):
     
     cal_id = calendar["id"][0:26]
     cal_name = calendar["summary"]
+    logger.info(f"Processando calendário: {cal_name}")
     
     file_OK = json_file_check(
         make_path(f"{cal_name}_all_events_new.json", "json"),
@@ -210,20 +206,7 @@ def doorman():
         Boolean
     """
     logger.debug("doorman()")
-    calendars = get_calendars()
-    for calendar in calendars:
-        if "selected" in calendars[calendar]:
-            cal_id = calendars[calendar]["id"][0:26]
-            cal_name = calendars[calendar]["summary"]
-    today_events = get_today_events(f"{cal_id}@group.calendar.google.com")
-    if today_events:
-        #write_json(today_events, make_path(f"{cal_name}_today_events.json", "json"))
-        with open(make_path(f"{cal_name}_today_events.json", "json"), "w") as file:
-            file.write(json.dumps(today_events, indent=4, sort_keys=True))
-        
-    else:
-        logger.info("Não há eventos hoje!")
-        return False
+    
 
     data = webcam_handler()
     if data:
@@ -232,7 +215,12 @@ def doorman():
         return False
         
     if decrypted:
-        auth_entrance = check_event(decrypted[0], decrypted[1], cal_name)
+        
+        cal_name = get_calendar(decrypted[1])["summary"]
+        if cal_name:
+            auth_entrance = check_event(decrypted[0], decrypted[1], cal_name)
+        else:
+            logger.warning(f"O calendário {decrypted[1]} não foi encontrado!")
     else:
         return False
     

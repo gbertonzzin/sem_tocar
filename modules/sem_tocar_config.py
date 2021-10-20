@@ -22,8 +22,8 @@ SAVE_WEBCAM = True
 #TODO: Keep logs regarding QR codes on entrance?
 WEBCAM_QR_LOGS = True
 
-#Time tolerance for entrance
-TOLERANCE = 0
+#Time tolerance for entrance, in minutes
+TOLERANCE = 60
 
 #Filler in case the calendar and event IDs are not same lenght. Unused.
 CRYPTO_FILLER = ""
@@ -42,3 +42,6 @@ TIMEZONE = 'Brazil/East'
 
 #How many seconds shall the door remain open
 OPEN_DOOR = 3
+
+#Use encryption? Encryption demands big QR codes which are not very readable
+ENCRYPTION = False

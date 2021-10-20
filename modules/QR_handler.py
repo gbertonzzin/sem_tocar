@@ -55,12 +55,16 @@ def encrypt_data(cal_id, eve_id):
     jumbled = (
         "".join(i for j in zip_longest(cal_id, eve_id, fillvalue=filler) for i in j)
     )[::-1]
-    logger.info(f"Embaralhado: {jumbled}")
-    key = open("crypto.key", "rb").read()
-    encoded_message = jumbled.encode()
-    f = Fernet(key)
-    encrypted = f.encrypt(encoded_message)
-    logger.info(f"Encriptado: {encrypted}")
+    if ENCRYPTION == True:
+        key = open("crypto.key", "rb").read()
+        encoded_message = jumbled.encode()
+        f = Fernet(key)
+        encrypted = f.encrypt(encoded_message)
+        logger.info(f"Encriptado: {encrypted}")
+    else:
+        encrypted = jumbled
+        logger.info(f"Embaralhado: {jumbled}")
+        
 
     return encrypted
 
@@ -77,8 +81,10 @@ def produce_QR(qrinput, outFile):
         None
     """
     logger.debug(f"produce_QR()")
-
-    qr = qrcode.QRCode(version=9, box_size=10, border=4)
+    if ENCRYPTION == True:
+        qr = qrcode.QRCode(version=9, box_size=10, border=3)
+    else:
+        qr = qrcode.QRCode(version=4, box_size=10, border=3)
     qr.add_data(qrinput)
     qr.make(fit=False)
     img = qr.make_image(fill="black", back_color="white")
@@ -104,7 +110,7 @@ def check_QR(file):  # NOT USED, remove? maybe useful with webcam logs?
         return False
 
 
-def decrypt_data(input):
+def decrypt_data(qrinput):
     """Decrypts and unjumbles the data provided
     PT:
 
@@ -115,16 +121,19 @@ def decrypt_data(input):
     """
     logger.debug("decrypt_data()")
 
-    encoded_input = bytes(input, "utf-8")
-    
-    key = open("crypto.key", "rb").read()
-    f = Fernet(key)
-    try:
-        decrypted = f.decrypt(encoded_input).decode()
-    except InvalidToken:
-        logger.critical("Não foi possível decriptografar o QR: chave de criptografia inválida.")
-        return False
-    # .replace("CRYPTO_FILLER","")#for use with CRYPTO_FILLER
+    if ENCRYPTION == True:
+        encoded_input = bytes(qrinput, "utf-8")
+        
+        key = open("crypto.key", "rb").read()
+        f = Fernet(key)
+        try:
+            decrypted = f.decrypt(encoded_input).decode()
+        except InvalidToken:
+            logger.critical("Não foi possível decriptografar o QR: chave de criptografia inválida.")
+            return False
+    else:
+        decrypted = qrinput
+        # .replace("CRYPTO_FILLER","")#for use with CRYPTO_FILLER
     unjumbled_cal_id = (decrypted[1::2])[::-1]
     unjumbled_eve_id = (decrypted[0::2])[::-1]  # .replace("$","")
     logger.info(f"cal ID: {unjumbled_cal_id} | event ID: {unjumbled_eve_id}")

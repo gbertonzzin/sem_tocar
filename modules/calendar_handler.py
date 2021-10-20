@@ -65,16 +65,35 @@ def get_events(cal_id, days_future):
 
     return {i: event for i, event in enumerate(events)}
 
+def get_calendar(cal_id):
+    service = get_calendar_service()
+    calendar = service.calendars().get(calendarId=f"{cal_id}@group.calendar.google.com").execute()
+    return calendar
 
 def get_today_events(cal_id):
     logger.debug("get_today_events()")
     
-    return get_events(cal_id, 1)
+    calendars = get_calendars()
+    for calendar in calendars:
+        if "selected" in calendars[calendar]:
+            cal_id = calendars[calendar]["id"][0:26]
+            cal_name = calendars[calendar]["summary"]
+            logger.info(f"Buscando eventos de hoje para {cal_name}.")
+            today_events = get_events(f"{cal_id}@group.calendar.google.com", 1)
+            if today_events:
+                #write_json(today_events, make_path(f"{cal_name}_today_events.json", "json"))
+                with open(make_path(f"{cal_name}_today_events.json", "json"), "w") as file:
+                    file.write(json.dumps(today_events, 
+                                        indent=4, 
+                                        sort_keys=True))
+            else:
+                logger.info(f"Não há eventos hoje para o calendário {cal_name}!")
+                #return False
 
 
 def check_event(cal_id, event_id, cal_name):
     """Checks if event is happening right now
-    PT:Verifica se o evento está ocorrento agora
+    PT:Verifica se o evento está ocorrendo agora
 
     Args:
         cal_id: Calendar ID
@@ -83,7 +102,7 @@ def check_event(cal_id, event_id, cal_name):
         Boolean
     """
     logger.debug("check_event()")
-
+    
     with open(make_path(f"{cal_name}_today_events.json", "json")) as f:
     #with open(os.path.sep.join(["json"] + [f"{cal_name}_today_events.json"])) as f:
         today_data = json.load(f)
@@ -109,7 +128,7 @@ def check_event(cal_id, event_id, cal_name):
                 #print(start)
                 #print(end)
 
-                if start <= now < end:
+                if start <= (now-(TOLERANCE*60)) < end:
                     logger.info("O horário confere")
                     return True
                 else:
