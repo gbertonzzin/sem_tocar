@@ -22,9 +22,9 @@ def json_file_check(new_json, last_json):
     logger.debug("json_file_check()" )
 
     if os.path.isfile(new_json): 
-        logger.info(f"{new_json} existe! \n    Prosseguindo...")    
+        logger.info(f"{new_json} existe!")    
         if os.path.isfile(last_json):
-            logger.info(f"{last_json} existe! \n    Prosseguindo...")
+            logger.info(f"{last_json} existe!")
             os.remove(last_json)
             os.rename(new_json, last_json)
             logger.info(f"{new_json} foi renomeado para {last_json}")

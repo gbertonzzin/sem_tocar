@@ -26,7 +26,11 @@ def get_calendars():
     logger.debug("get_calendars()")
     
     logger.info("Requerindo eventos...")
-    service = get_calendar_service()
+    try:
+        service = get_calendar_service()
+    except:
+        logger.warning("Servidor não encontrado. O dispositivo está conectado à internet?")
+        return False
     calendars_result = service.calendarList().list().execute()
     calendars = calendars_result.get("items", [])
     #logger.debug(f"{calendars=}")
@@ -52,7 +56,7 @@ def get_events(cal_id, days_future):
     events_result = (
         service.events()
         .list(
-            calendarId=cal_id,
+            calendarId=f"{cal_id}@group.calendar.google.com",
             timeMin=today_start.isoformat(),
             timeMax=max_days.isoformat(),
             maxResults=2500,
@@ -79,17 +83,17 @@ def get_today_events(cal_id):
             cal_id = calendars[calendar]["id"][0:26]
             cal_name = calendars[calendar]["summary"]
             logger.info(f"Buscando eventos de hoje para {cal_name}.")
-            today_events = get_events(f"{cal_id}@group.calendar.google.com", 1)
-            if today_events:
+            today_events = get_events(cal_id, 1)
                 #write_json(today_events, make_path(f"{cal_name}_today_events.json", "json"))
-                with open(make_path(f"{cal_name}_today_events.json", "json"), "w") as file:
-                    file.write(json.dumps(today_events, 
-                                        indent=4, 
-                                        sort_keys=True))
+            with open(make_path(f"{cal_name}_today_events.json", "json"), "w") as file:
+                file.write(json.dumps(today_events, 
+                                    indent=4, 
+                                    sort_keys=True))
+            if today_events:
+                logger.info(f"Há eventos hoje para o calendário {cal_name}!")
+
             else:
                 logger.info(f"Não há eventos hoje para o calendário {cal_name}!")
-                #return False
-
 
 def check_event(cal_id, event_id, cal_name):
     """Checks if event is happening right now
@@ -128,14 +132,19 @@ def check_event(cal_id, event_id, cal_name):
                 #print(start)
                 #print(end)
 
-                if start <= (now-(TOLERANCE*60)) < end:
-                    logger.info("O horário confere")
+                if (start-(TOLERANCE*60)) <= now < end:
+                    if int(start/60) > int(now/60):
+                        logger.info(f"O horário confere: {int((start-now)/60)} minutos adiantado.")
+                    elif int(start/60) == int(now/60):
+                        logger.info("Caraca o cara chegou no exato minuto!")
+                    elif int(start/60) < int(now/60):
+                        logger.info(f"O horário confere: {int((now-start)/60)} minutos atrasado")
                     return True
                 else:
-                    logger.info("O horário diverge")
+                    logger.info("O horário diverge.")
                     
             else:
-                logger.info("Evento não encontrado pelo API")
+                logger.info("Evento não encontrado!")#is it, always?
                 
         else:
             logger.info(f"{event_id} nao esta no calendario!")

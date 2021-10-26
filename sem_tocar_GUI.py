@@ -22,9 +22,9 @@ def gui():
     doorButton = Button(
         window, text="Open maglock", bg="grey", command=lambda: unlock()
     ).pack()
-    wappButton = Button(
-        window, text="Whatsapp", bg="grey", command=lambda: test_whatsapp()
-    ).pack()
+    #wappButton = Button(
+    #    window, text="Whatsapp", bg="grey", command=lambda: test_whatsapp()
+    #).pack()
 
     window.mainloop()
 

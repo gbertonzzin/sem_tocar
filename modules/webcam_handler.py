@@ -59,7 +59,7 @@ def qr_logger(data, image):     #TODO
     timestampStr = datetime.now().strftime("%d%m%Y_%H%M%S")
 
     if SAVE_WEBCAM == True:
-        cv2.imwrite(make_path("{timestampStr}.png", "img"), image)
+        cv2.imwrite(make_path(f"{timestampStr}.png", "img"), image)
         
     #TODO: log webcam info into JSON for security purposes
 
@@ -97,16 +97,21 @@ def webcam_handler():
     logger.debug("webcam_handler()")
 
     cap = cv2.VideoCapture(0)
-    while True:
-        ret, frame = cap.read()
-        cv2.imshow("Image", frame)
-        data = decoder(frame)
-        if isinstance(data, str):
-            cv2.destroyAllWindows()
-            del cap
-            return data
-        code = cv2.waitKey(10)
-        if code == ord("q"):
-            cv2.destroyAllWindows()
-            del cap
-            break
+    if cap is None or not cap.isOpened():
+        logger.warning("Houve um problema ao acessar a câmera!")
+        return False
+    else:
+        while True:
+            ret, frame = cap.read()
+            if frame.any():
+                cv2.imshow("Image", frame)
+                data = decoder(frame)
+            if isinstance(data, str):
+                cv2.destroyAllWindows()
+                del cap
+                return data
+            code = cv2.waitKey(10)
+            if code == ord("q"):
+                cv2.destroyAllWindows()
+                del cap
+                break

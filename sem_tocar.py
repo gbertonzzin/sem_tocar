@@ -28,15 +28,15 @@ coloredlogs.install(level='DEBUG')
 logger = logging.getLogger(__name__)
 
 logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
-
+logging.getLogger("googleapiclient.discovery").setLevel(logging.WARNING)
 
 def main():
     routine_thread = threading.Thread(target=routine, daemon=False)
-    #doorman_thread = threading.Thread(target=sentry_box)
+    doorman_thread = threading.Thread(target=sentry_box)
   
     routine_thread.start()
-    #sleep(5)
-    #doorman_thread.start()
+    sleep(15)
+    doorman_thread.start()
 
 def setup():
     """
@@ -72,10 +72,10 @@ def setup():
         get_gmail_service()
         
 
-def sentry_box():
-    try:
-        while True:
-            doorman()
+def sentry_box():       #TODO: What happens when the doorman fails?
+    try:                #for example, if the webcam is broken or disconnected
+        while True:     #or if the API requests fail? or if some malicious QR is shown?
+            doorman()   #the app needs to handle the errors and keep trying doorman without messing with the routine
     except KeyboardInterrupt:
         pass
 
@@ -107,13 +107,21 @@ def request_calendars():
     
     """
     logger.debug("request_calendars()")
-    calendars = get_calendars() 
+    
+    try:
+        calendars = get_calendars()
+    except: 
+        logger.warning("Ocorreu um erro ao requisitar os calendários.")
+        return False
+
     if calendars:
         json.dump(calendars, open(make_path("calendars.json", "json"), "wt"))
         for calendar in calendars.values():
             if "selected" in calendar:
                 get_today_events(calendar["id"][0:26])
                 process_calendar(calendar)
+    else:
+        logger.warning("Ocorreu um erro ao requisitar os calendários.")
 
 
 def process_calendar(calendar):
@@ -133,13 +141,14 @@ def process_calendar(calendar):
         make_path(f"{cal_name}_all_events_{date.today()}.json", "json"),
         )
     
-    events = get_events(f"{cal_id}@group.calendar.google.com", DAYS_TO_REQUEST)
+    events = get_events(cal_id, DAYS_TO_REQUEST)
     
+    with open(make_path(f"{cal_name}_all_events_new.json", "json"), "w") as file:
+        file.write(json.dumps(events, indent=4, sort_keys=True))
     if events:
-        with open(make_path(f"{cal_name}_all_events_new.json", "json"), "w") as file:
-            file.write(json.dumps(events, indent=4, sort_keys=True))
+        logger.info(f"Há eventos no calendário {cal_name}!")
     else:
-        logger.info("Não há eventos!")
+        logger.info(f"Não há eventos no calendário {cal_name}!")
     
     if file_OK == True:
         
@@ -153,7 +162,7 @@ def process_calendar(calendar):
             for event_id in new_event:
                 process_new_events(cal_id, event_id, events)
         else:
-            logger.info("Não há novos eventos!")
+            logger.info(f"Não há novos eventos no calendário {cal_name}!")
             return False
     else:
         logger.warning(f"Ocorreu um erro. Tentando novamente em {ROUTINE_FREQ} segundos.")
@@ -212,15 +221,17 @@ def doorman():
     if data:
         decrypted = decrypt_data(data)
     else:
+        logger.warning("Erro crítico!")
         return False
         
     if decrypted:
         
-        cal_name = get_calendar(decrypted[1])["summary"]
+        cal_name = get_calendar(decrypted[0])["summary"]
         if cal_name:
+            logger.info(f"Verificando autenticacão para o evento '{cal_name}'.")
             auth_entrance = check_event(decrypted[0], decrypted[1], cal_name)
         else:
-            logger.warning(f"O calendário {decrypted[1]} não foi encontrado!")
+            logger.warning(f"O calendário {decrypted[0]} não foi encontrado!")
     else:
         return False
     

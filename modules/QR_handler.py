@@ -136,6 +136,6 @@ def decrypt_data(qrinput):
         # .replace("CRYPTO_FILLER","")#for use with CRYPTO_FILLER
     unjumbled_cal_id = (decrypted[1::2])[::-1]
     unjumbled_eve_id = (decrypted[0::2])[::-1]  # .replace("$","")
-    logger.info(f"cal ID: {unjumbled_cal_id} | event ID: {unjumbled_eve_id}")
-
+    logger.info(f"cal ID: {unjumbled_cal_id}")
+    logger.info(f"event ID: {unjumbled_eve_id}")
     return unjumbled_cal_id, unjumbled_eve_id

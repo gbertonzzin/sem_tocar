@@ -1,6 +1,6 @@
 from modules.sem_tocar_config import *
 from modules.toolbox import *
-import pywhatkit
+#import pywhatkit
 
 def test_whatsapp():
     
