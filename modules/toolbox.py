@@ -21,7 +21,7 @@ def format_human_date(event_start):
     time = format_date.format('HH:mm', locale='pt_br')
     diff = format_date.diff_for_humans()
     
-    human_date = f"{day} de {month} de {year}, {weekday}, às {time}, {diff}"
+    human_date = {"day":day, "month":month, "year":year, "weekday":weekday, "time":time, "diff":diff}
     
     return human_date
     

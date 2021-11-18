@@ -4,7 +4,7 @@ PT:Lida com pedidos do Gcalendar API
 #import os
 
 from datetime import date, datetime, timedelta, time, timezone
-from modules.services import get_calendar_service
+from modules.services import get_service
 from modules.toolbox import *
 
 
@@ -27,7 +27,7 @@ def get_calendars():
     
     logger.info("Requerindo eventos...")
     try:
-        service = get_calendar_service()
+        service = get_service('gcal')
     except:
         logger.warning("Servidor não encontrado. O dispositivo está conectado à internet?")
         return False
@@ -51,7 +51,7 @@ def get_events(cal_id, days_future):
 
     today_start = datetime.combine(date.today(), time()).astimezone()
     max_days = today_start + timedelta(days=days_future)
-    service = get_calendar_service()
+    service = get_service('gcal')
     logger.info("Requerindo eventos...")
     events_result = (
         service.events()
@@ -70,7 +70,7 @@ def get_events(cal_id, days_future):
     return {i: event for i, event in enumerate(events)}
 
 def get_calendar(cal_id):
-    service = get_calendar_service()
+    service = get_service('gcal')
     calendar = service.calendars().get(calendarId=f"{cal_id}@group.calendar.google.com").execute()
     return calendar
 
@@ -112,7 +112,7 @@ def check_event(cal_id, event_id, cal_name):
         today_data = json.load(f)
     for event_object in today_data.values():
         if event_id == event_object["id"][0:26]:#Watch out for recursive events! Only the first 26 chars matter now
-            service = get_calendar_service()
+            service = get_service('gcal')
             event = (
                 service.events()
                 .get(

@@ -62,14 +62,14 @@ def setup():
     else:
         logger.warning("O token de acesso ao GCalendar não foi encontrado!")
         logger.info("Autenticando o Gcal API...")
-        get_calendar_service()
+        get_service('gcal')
     
     if os.path.isfile("gmail_token"):
         logger.info("O token de acesso ao GMail já existe!")
     else:
         logger.warning("O token de acesso ao GMail não foi encontrado!")
         logger.info("Autenticando o Gmail API...")
-        get_gmail_service()
+        get_service('gmail')
         
 
 def sentry_box():       #TODO: What happens when the doorman fails?
@@ -191,6 +191,7 @@ def process_new_events(calendar_id, event_id, events):
                 notify_attendees(event)
             else:
                 logger.info("Não há convidados para esse evento!")
+                
                 if PRINT_INVITE == True:
                     logger.info("Imprimindo...")
                     #invite = write_invitation(event, make_path(f"QR_{event_id}.png", COMPANY_NAME, "QR"))
@@ -202,7 +203,8 @@ def process_new_events(calendar_id, event_id, events):
                     #else:
                     #   logger.warning("Não foi possível determinar o sistema operacional!")
             if "description" in event:
-                notify_whatsapp(event)
+                pass
+                #notify_whatsapp(event)
 
 def doorman():
     """

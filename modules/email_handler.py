@@ -76,7 +76,7 @@ def create_message_with_attachment(sender, to, subject, message_text, file):
     return body
 
 
-def send_message(user_id, message):
+def send_message(message):
     """Send an email message
     PT:
 
@@ -89,10 +89,10 @@ def send_message(user_id, message):
     Returns:
         Sent Message.
     """
-    service = get_gmail_service()
+    service = get_service('gmail')
     try:
         message = (
-            service.users().messages().send(userId=user_id, body=message).execute()
+            service.users().messages().send(userId=USER_ID, body=message).execute()
         )
         logger.info("E-mail enviado!")
         logger.info("ID da mensagem e-mail: %s" % message["id"])
@@ -113,13 +113,30 @@ def notify_attendees(event): #TODO: check if e-mail was sent and received succes
     logger.debug("notify_attendees()")
     for attendee in event["attendees"]:
         logger.info(f"Convidado:{attendee['email']}")
-        text_message = f"Você tem um novo evento: {event['summary']} em {COMPANY_NAME}, {format_human_date(event['start'])}, para entrar apresente o código QR em anexo abaixo na portaria e em caso de duvidas favor contactar no telefone {CONTACT_PHONE}."
+        date = format_human_date(event['start'])
+        human_date = f"{date['day']} de {date['month']} de {date['year']}, {date['weekday']}, às {date['time']}, {date['diff']}"
+        text_message = f"Você tem um novo evento: {event['summary']} em {COMPANY_NAME}, {human_date}, para entrar apresente o código QR em anexo abaixo na portaria e em caso de duvidas favor contactar no telefone {CONTACT_PHONE}."
         message = create_message_with_attachment(
             USER_ID,
             attendee["email"],
-            event["id"],
+            event["summary"],
             text_message,
             make_path(f"QR_{event['id']}.png", "QR"),
         )
-        send_message(USER_ID, message)
+        try:
+            send_message(message)
+        except:
+            logger.warning("Ocorreu um erro ao enviar o e-mail!")
+    message_ = create_message_with_attachment( #send a copy of the e-mail to the user
+        USER_ID,
+        USER_ID,
+        event["summary"],
+        text_message,
+        make_path(f"QR_{event['id']}.png", "QR"),
+    )
+    try:
+        send_message(message_)
+    except:
+        logger.warning("Ocorreu um erro ao enviar o e-mail!")
+
 
