@@ -89,10 +89,10 @@ def send_message(message):
     Returns:
         Sent Message.
     """
-    service = get_service('gmail')
+    service = get_service('gmail.send')
     try:
         message = (
-            service.users().messages().send(userId=USER_ID, body=message).execute()
+            service.users().messages().send(userId="me", body=message).execute()
         )
         logger.info("E-mail enviado!")
         logger.info("ID da mensagem e-mail: %s" % message["id"])

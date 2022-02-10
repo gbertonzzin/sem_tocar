@@ -2,7 +2,7 @@
 *.pickle
 *token*
 credentials*
-*.key
+*.key*
 
 #keep the folders (good idea?)
 json/*
@@ -13,6 +13,8 @@ img/*
 !img/.gitkeep
 docx/
 !docx/.gitkeep
+logs/*
+!logs/.gitkeep
 
 #useless stuff?
 *.pyc

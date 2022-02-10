@@ -1,4 +1,4 @@
-from modules.door_handler import unlock
+from modules.gpio_handler import unlock
 from modules.whatsapp_handler import *
 from sem_tocar import *
 from tkinter import *
