@@ -15,14 +15,17 @@ CONTACT_PHONE = "(14)981605496"
 #How many days into the future the event request gets
 DAYS_TO_REQUEST = 30
 
-#How frequently the routine requests shall be performed, IN SECONDS
-ROUTINE_FREQ = 60
+#How frequently the routine requests shall be performed, IN MINUTES
+ROUTINE_FREQ = 1*60
 
 #Save webcam image when QR code is shown?
 SAVE_WEBCAM = False
 
 #TODO: Keep logs regarding QR codes on entrance?
 WEBCAM_QR_LOGS = False
+
+#Show webcam image on a tiny window?
+SHOW_WEBCAM = False
 
 #Time tolerance for entrance, in minutes
 TOLERANCE = 15

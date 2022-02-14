@@ -83,15 +83,17 @@ def webcam_handler():
         while True:
             ret, frame = cap.read()
             if frame.any():
-                cv2.imshow("Image", frame)
+                if SHOW_WEBCAM:
+                    cv2.imshow("Image", frame)
                 data = decoder(frame)
             if isinstance(data, str):
                 qr_found_warn()
-                cv2.destroyAllWindows()
+                if SHOW_WEBCAM:
+                    cv2.destroyAllWindows()
                 del cap
                 return data
             code = cv2.waitKey(10)
-            if code == ord("q"):
+            if SHOW_WEBCAM and code == ord("q"):
                 cv2.destroyAllWindows()
                 del cap
                 break

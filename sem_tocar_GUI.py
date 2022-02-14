@@ -20,7 +20,7 @@ def gui():
         window, text="Setup", bg="grey", command=lambda: setup()
     ).pack()
     doorButton = Button(
-        window, text="Open maglock", bg="grey", command=lambda: unlock()
+        window, text="QR found", bg="grey", command=lambda: qr_found_warn()
     ).pack()
     #wappButton = Button(
     #    window, text="Whatsapp", bg="grey", command=lambda: test_whatsapp()

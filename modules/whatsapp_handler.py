@@ -1,41 +1,35 @@
 from modules.sem_tocar_config import *
 from modules.toolbox import *
-#import pywhatkit
+import time
+import os
+from urllib.parse import quote
+import webbrowser as web
+import pyautogui as pg
 
-def test_whatsapp():
-    
-    phone = "+5514981605496"
-    img = "teste.png"
-    
-    text_message = f"ATENÇÃO CHEGOU CHATUBA HEIN"
-    img_caption = ""
-    
-    #im = Image.open(img)
-    #im.show()
-
-    pywhatkit.sendwhats_image(phone, img, img_caption, 30, True, 5)
-
-def notify_whatsapp(event):
-    
-    pendulum.set_locale('pt_br')
-
-    phone = event['description']
-    img = make_path(f"QR_{event['id']}.png", "/home/pi/Desktop/app/venv/sem_tocar/QR")
-    
-    text_message = f"Você tem um evento em {COMPANY_NAME}, {format_human_date(event['start'])}, em caso de duvidas favor contactar no telefone {CONTACT_PHONE}"
-    img_message = f"Apresente este código à webcam na entrada para destrancar a porta."
-    
-    #print(text_message)
-    #pywhatkit.sendwhatmsg_instantly(phone, text_message, 40, False, 1)
-
-    pywhatkit.sendwhats_image(phone, img, "", 15, True, 1)
-
-
-
-def send_wapp_message():
-    pywhatkit.check_window()
-    
-    pass
-
-def send_wapp_image():
-    pass
+def notify_whatsapp (event):
+    for phone_no in event["description"].split(","):
+        wait_time = 60
+        close_time = 15
+        event_time = format_human_date(event['start'])
+        message = f"Olá, você tem um evento em {COMPANY_NAME} às {event_time['time']} do dia {event_time['day']} de {event_time['month']} ({event_time['weekday']}), apresente o QR na entrada"
+        #phone_no = event["description"]
+        image = make_path(f"QR_{event['id']}.png", "QR")
+        
+        parsed_message = quote(message)
+        web.open('https://web.whatsapp.com/send?phone=' +
+                phone_no + '&text=' + parsed_message)
+        print(message, phone_no)
+        time.sleep(wait_time)
+        width, height = pg.size()
+        pg.click(width/2, height/2)
+        time.sleep(wait_time/4)
+        pg.press('enter')
+        os.system(
+        f"xclip -selection clipboard -target image/png -i {image}")
+        time.sleep(wait_time/4)
+        pg.hotkey("ctrl", "v")
+        time.sleep(wait_time/4)
+        pg.press('enter')
+        
+        time.sleep(close_time)
+        pg.hotkey("ctrl", "w")

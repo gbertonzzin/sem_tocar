@@ -72,11 +72,11 @@ def setup():
         get_service('gmail.send')
         
 
-def sentry_box():       #TODO: What happens when the doorman fails?
-    try:                #for example, if the webcam is broken or disconnected
-        while True:     #or if the API requests fail? or if some malicious QR is shown?
-            doorman()   #the app needs to handle the errors and keep trying doorman without messing with the routine
-    except Exception as e:
+def sentry_box():           #TODO: What happens when the doorman fails?
+    try:                    #for example, if the webcam is broken or disconnected
+        while True:         #or if the API requests fail? or if some malicious QR is shown?
+            doorman()       #the app needs to handle the errors and keep trying doorman without
+    except Exception as e:  #with the secretary routine
         problem_found()
         logger.warning(f"Doorman parou: {e}")
         pass
@@ -206,8 +206,7 @@ def process_new_events(calendar_id, event_id, events):
                     #else:
                     #   logger.warning("Não foi possível determinar o sistema operacional!")
             if "description" in event:
-                pass
-                #notify_whatsapp(event)
+                notify_whatsapp(event)
 
 def doorman():
     """
