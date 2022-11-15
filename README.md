@@ -13,7 +13,7 @@ O funcionamento é o seguinte:
 
 ## Execucao
 
-Para a execucao desse programa eh necessario o uso da ferramenta [Poetry](https://python-poetry.org/). 
+Para a execucao desse programa é necessario o uso da ferramenta [Poetry](https://python-poetry.org/). 
 
 Apos instalar a ferramenta, execute
 
