@@ -6,6 +6,8 @@ PT:Lida com pedidos do Gcalendar API
 from datetime import date, datetime, timedelta, time, timezone
 from modules.services import get_service
 from modules.toolbox import *
+from googleapiclient import errors
+
 
 import json
 import logging
@@ -46,47 +48,42 @@ def get_events(cal_id, days_future, recursive):
     max_days = today_start + timedelta(days=days_future)
     service = get_service('calendar')
     logger.info("Requerindo eventos...")
-    events_result = (
-        service.events()
-        .list(
-            calendarId=f"{cal_id}@group.calendar.google.com",
-            timeMin=today_start.isoformat(),
-            timeMax=max_days.isoformat(),
-            maxResults=2500,
-            singleEvents=recursive,
-            orderBy="updated",
+    try:
+        events_result = (
+            service.events()
+            .list(
+                calendarId=f"{cal_id}@group.calendar.google.com",
+                #timeMin=today_start.isoformat(),
+                #timeMax=max_days.isoformat(),
+                #maxResults=2500,
+                #singleEvents=recursive,
+                #orderBy="updated",
+            ).execute()
         )
-        .execute()
-    )
-    events = events_result.get("items", [])
+        events = events_result.get("items", [])
+        return {i: event for i, event in enumerate(events)}
+    except Exception as e:
+        print(e)
 
-    return {i: event for i, event in enumerate(events)}
 
 def get_calendar(cal_id):
     service = get_service('calendar')
     calendar = service.calendars().get(calendarId=f"{cal_id}@group.calendar.google.com").execute()
     return calendar
 
-def get_today_events(cal_id):
+def get_today_events(cal_id, cal_name):
     logger.debug("get_today_events()")
-    
-    calendars = get_calendars()
-    for calendar in calendars:
-        if "selected" in calendars[calendar]:
-            cal_id = calendars[calendar]["id"][0:26]
-            cal_name = calendars[calendar]["summary"]
-            logger.info(f"Buscando eventos de hoje para {cal_name}.")
-            today_events = get_events(cal_id, 1, False)
-                #write_json(today_events, make_path(f"{cal_name}_today_events.json", "json"))
-            with open(make_path(f"{cal_name}_today_events.json", "json"), "w") as file:
-                file.write(json.dumps(today_events, 
-                                    indent=4, 
-                                    sort_keys=True))
-            if today_events:
-                logger.info(f"Há eventos hoje para o calendário {cal_name}!")
-
-            else:
-                logger.info(f"Não há eventos hoje para o calendário {cal_name}!")
+    logger.info(f"Buscando eventos de hoje para {cal_name}.")
+    today_events = get_events(cal_id, 1, False)
+        #write_json(today_events, make_path(f"{cal_name}_today_events.json", "json"))
+    with open(make_path(f"{cal_name}_today_events.json", "json"), "w") as file:
+        file.write(json.dumps(today_events, 
+                            indent=4, 
+                            sort_keys=True))
+    if today_events:
+        logger.info(f"Há eventos hoje para o calendário {cal_name}!")
+    else:
+       logger.info(f"Não há eventos hoje para o calendário {cal_name}!")
 
 def check_event(cal_id, event_id, cal_name):
     """Checks if event is happening right now
